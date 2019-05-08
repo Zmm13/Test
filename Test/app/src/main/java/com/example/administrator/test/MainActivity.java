@@ -62,11 +62,19 @@ public class MainActivity extends AppCompatActivity {
         StatusBarUtils.StatusBarTransport(this);
         StatusBarUtils.statusBarLightMode(this);
         //初始化view
+
+
+
         initView();
         //初始化数据
         initData();
         //初始化监听
         initListener();
+
+
+
+
+        
     }
 
     private void initView() {
