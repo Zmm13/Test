@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="song"
+            type="com.example.administrator.test.daoJavaBean.Song" />
+
+        <variable
+            name="isPlay"
+            type="Boolean" />
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/x10"
+        android:paddingRight="@dimen/x10"
+        android:paddingTop="@dimen/x5"
+        android:paddingBottom="@dimen/x5"
+        android:background="@drawable/selector_item_music_bg"
+        >
+        <ImageView
+            android:id="@+id/iv_paly"
+            android:layout_width="@dimen/x15"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/play_state"
+            android:layout_centerVertical="true"
+            android:visibility="@{isPlay ? View.VISIBLE : View.GONE}"
+            android:layout_marginRight="@dimen/x5"/>
+        <TextView
+            android:id="@+id/tv_name"
+            android:includeFontPadding="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/x45"
+            android:layout_toRightOf="@+id/iv_paly"
+            android:text="@{song.name}"
+            android:textColor="@color/app_base_color2"
+            android:textSize="@dimen/x12"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:includeFontPadding="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/iv_paly"
+            android:layout_marginRight="@dimen/x45"
+            android:text="@{song.singer}"
+            android:textColor="@color/app_base_color2"
+            android:textSize="@dimen/x8"
+            android:layout_below="@+id/tv_name"
+            android:layout_marginTop="@dimen/x5"/>
+        <ImageView
+            android:id="@+id/iv_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x18"
+            android:adjustViewBounds="true"
+            android:src="@drawable/menu_music"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+        <ImageView
+            android:layout_width="@dimen/x18"
+            android:layout_height="@dimen/x18"
+            android:src="@drawable/music_icon"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/iv_menu"
+            android:layout_marginRight="@dimen/x5"/>
+    </RelativeLayout>
+</layout>
