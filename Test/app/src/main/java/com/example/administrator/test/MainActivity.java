@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         //213213124
         //hello git
+        //hello gitlab
     }
 
     private void initView() {
