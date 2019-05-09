@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="com.example.administrator.test.utils.StaticBaseInfo" />
+
+        <variable
+            name="isLight"
+            type="Boolean" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="设置1"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:layout_width="@dimen/x45"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="设置2"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:layout_width="@dimen/x45"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="设置3"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:layout_width="@dimen/x45"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="设置4"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:layout_width="@dimen/x45"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="设置5"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:layout_width="@dimen/x45"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="设置6"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:layout_width="@dimen/x45"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:layout_marginTop="@dimen/x10"
+            android:background="@{isLight ? StaticBaseInfo.color_item_light : StaticBaseInfo.color_item_dark}">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingLeft="@dimen/x12"
+                android:text="夜间模式"
+                android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                android:textSize="@dimen/x12"
+                android:textStyle="bold" />
+
+            <com.example.administrator.test.MyView.MyCheckBar
+                android:id="@+id/cb"
+                android:layout_width="@dimen/x40"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="@dimen/x12"
+                app:isCheck="@{isLight ? false : true}" />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>
+

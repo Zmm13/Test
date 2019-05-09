@@ -6,4 +6,14 @@
         <attr name="civ_border_overlay" format="boolean" />
         <attr name="civ_fill_color" format="color" />
     </declare-styleable>
+    <declare-styleable name="DragImageView">
+        <attr name="side_padding" format="dimension"/>
+    </declare-styleable>
+    <declare-styleable name="MyCheckBar">
+        <attr name="bg_color_default" format="color"/>
+        <attr name="bg_color_checked" format="color"/>
+        <attr name="circle_color_default" format="color"/>
+        <attr name="circle_color_checked" format="color"/>
+        <attr name="isCheck" format="boolean"/>
+    </declare-styleable>
 </resources>

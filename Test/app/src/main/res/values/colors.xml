@@ -9,4 +9,10 @@
     <color name="app_base_color">#1afa29</color>
     <color name="app_base_color2">#2c2c2c</color>
     <color name="transport">#00000000</color>
+
+    //MyCheckBar
+    <color name="bg_color_default">#E0E0E0</color>
+    <color name="bg_color_checked">#66CD00</color>
+    <color name="circle_color_default">#E0EEEE</color>
+    <color name="circle_color_checked">#1afa29</color>
 </resources>

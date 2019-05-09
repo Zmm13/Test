@@ -1,6 +1,7 @@
 package com.example.administrator.test.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.view.View;
@@ -16,7 +17,7 @@ import java.lang.reflect.Method;
  */
 public class StatusBarUtils {
 
-
+    public static int state = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
     /**
      * 设置魅族手机状态栏图标颜色风格
      * 可以用来判断是否为Flyme用户
@@ -92,19 +93,19 @@ public class StatusBarUtils {
      * @param activity
      * @return 1:MIUUI 2:Flyme 3:android6.0 0:设置失败
      */
-    public static void statusBarLightMode(Activity activity) {
+    public static void statusBarLightMode(Activity activity,int i) {
         int result = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (MIUISetStatusBarLightMode(activity.getWindow(), true)) {
                 //result = 1;
-                StatusBarLightMode(activity, 1);
+                StatusBarLightMode(activity, 1,i);
             } else if (FlymeSetStatusBarLightMode(activity.getWindow(), true)) {
                 //result = 2;
-                StatusBarLightMode(activity, 2);
+                StatusBarLightMode(activity, 2,i);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 //activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                 //result = 3;
-                StatusBarLightMode(activity, 3);
+                StatusBarLightMode(activity, 3,i);
             }
         }
     }
@@ -116,14 +117,14 @@ public class StatusBarUtils {
      * @param activity
      * @param type     1:MIUUI 2:Flyme 3:android6.0
      */
-    public static void StatusBarLightMode(Activity activity, int type) {
+    public static void StatusBarLightMode(Activity activity, int type,int i) {
         if (type == 1) {
             MIUISetStatusBarLightMode(activity.getWindow(), true);
         } else if (type == 2) {
             FlymeSetStatusBarLightMode(activity.getWindow(), true);
         } else if (type == 3) {
             Window window = activity.getWindow();
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | i);
         }
     }
 
@@ -158,6 +159,20 @@ public class StatusBarUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.setStatusBarColor(Color.TRANSPARENT);
             window.setNavigationBarColor(Color.TRANSPARENT);
+        }
+    }
+
+    public static void setStatusBarVisible(Activity activity,boolean show) {
+        if (show) {
+            int uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            uiFlags |= 0x00001000;
+            activity.getWindow().getDecorView().setSystemUiVisibility(uiFlags);
+        } else {
+            int uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            uiFlags |= 0x00001000;
+            activity.getWindow().getDecorView().setSystemUiVisibility(uiFlags);
         }
     }
 }

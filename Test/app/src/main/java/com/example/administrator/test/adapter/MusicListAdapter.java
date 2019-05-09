@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.administrator.test.MainActivity;
 import com.example.administrator.test.R;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ItemMusicBinding;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.StaticBaseInfo;
 
 /**
  * Create by zmm
@@ -55,6 +57,7 @@ public abstract class MusicListAdapter extends RecyclerView.Adapter<MusicListAda
     @Override
     public void onBindViewHolder(MusicListAdapter.ViewHolder holder, int position) {
              holder.binding.setSong(list.get(position));
+             holder.binding.setIsLight(StaticBaseInfo.isLight(context));
              holder.binding.setIsPlay(MusicListTool.getInstance().getPlaySong() == null ? false : (MusicListTool.getInstance().getPlaySong().getPath().equals( list.get(position).getPath())));
 //             holder.binding.setIsPlay(position == playPosition);
     }

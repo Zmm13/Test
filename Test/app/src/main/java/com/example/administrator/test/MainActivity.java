@@ -27,8 +27,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.administrator.test.MyView.RippleAnimation;
 import com.example.administrator.test.adapter.FragmentViewPagerAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
+import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.service.MyMusicSercive;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
@@ -42,7 +44,14 @@ import com.example.administrator.test.utils.StatusBarUtils;
 
 import com.example.administrator.test.databinding.ActivityMainBinding;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
+
+import static android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -60,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //必须先透明状态栏再设置状态栏亮色标记，状态栏图标才会变成暗色
         StatusBarUtils.StatusBarTransport(this);
-        StatusBarUtils.statusBarLightMode(this);
+        StatusBarUtils.statusBarLightMode(this,StaticBaseInfo.isLight(this)? SYSTEM_UI_FLAG_LIGHT_STATUS_BAR :SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         //初始化view
 
 
@@ -71,17 +80,13 @@ public class MainActivity extends AppCompatActivity {
         //初始化监听
         initListener();
 
-
-
-
-        //213213124
-        //hello git
-        //hello gitlab
+        EventBus.getDefault().register(this);
     }
 
     private void initView() {
         //利用databinding设置布局文件并初始化databinding对象
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setIsLight(StaticBaseInfo.isLight(this));
         //由于是全屏设置线性布局第一个子view与顶部的距离，避免状态栏和页面重合
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.llItem.getLayoutParams();
         layoutParams.topMargin = ScreenUtils.getStatusHeight(this);
@@ -186,6 +191,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        binding.div.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Toast.makeText(MainActivity.this,"123",Toast.LENGTH_SHORT).show();
+                RippleAnimation.create(binding.div).setDuration(1500).start();
+                StaticBaseInfo.fanIsLight(MainActivity.this);
+                StatusBarUtils.statusBarLightMode(MainActivity.this, StaticBaseInfo.isLight(MainActivity.this)? SYSTEM_UI_FLAG_LIGHT_STATUS_BAR :SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                StaticBaseInfo.setBaseColor(Color.parseColor("#FF0000"));
+                binding.setIsLight(StaticBaseInfo.isLight(MainActivity.this));
+                EventBus.getDefault().post(new IsLightChangeEvent());
+            }
+        });
     }
 
     //初始化服务连接对象
@@ -258,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
         //置空动画
         HomeMusicIconRotateTool.objectAnimator = null;
         if (MusicListTool.getInstance().getPlaySong() != null) {
@@ -410,4 +428,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(IsLightChangeEvent event) {
+        binding.setIsLight(StaticBaseInfo.isLight(this));
+    }
+
 }

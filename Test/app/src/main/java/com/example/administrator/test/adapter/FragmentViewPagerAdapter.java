@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.example.administrator.test.Home1Fragment;
 import com.example.administrator.test.MusicListFragment;
 import com.example.administrator.test.MyTestFragment;
+import com.example.administrator.test.SettingFragment;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,8 @@ public class FragmentViewPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case 0:
                 return new MusicListFragment();
+            case 3:
+                return new SettingFragment();
             default:
                 return new MyTestFragment().build(position + 1);
         }

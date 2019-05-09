@@ -8,9 +8,12 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.PowerManager;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import java.lang.reflect.Method;
 
 /**
  * 获得屏幕相关的辅助类
@@ -208,6 +211,27 @@ public class ScreenUtils {
         if(pw != null){
             pw.release();
         }
+    }
+
+    /**
+     * 获取虚拟功能键高度
+     */
+    public static int getVirtualBarHeigh(Context context) {
+        int vh = 0;
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        DisplayMetrics dm = new DisplayMetrics();
+        try {
+            @SuppressWarnings("rawtypes")
+            Class c = Class.forName("android.view.Display");
+            @SuppressWarnings("unchecked")
+            Method method = c.getMethod("getRealMetrics", DisplayMetrics.class);
+            method.invoke(display, dm);
+            vh = dm.heightPixels - windowManager.getDefaultDisplay().getHeight();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vh;
     }
 
 }

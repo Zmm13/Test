@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.administrator.test.adapter.MusicListAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.FragmentMusicListBinding;
+import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.ReflushEvent;
 import com.example.administrator.test.singleton.MusicListTool;
@@ -154,6 +155,12 @@ public class MusicListFragment extends Fragment {
             adapter.notifyItemChanged(MusicListTool.getInstance().getPlaySong().getId().intValue() - 1);
         }
         playSong = MusicListTool.getInstance().getPlaySong();
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(IsLightChangeEvent event) {
+       if(adapter!=null){
+           adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
