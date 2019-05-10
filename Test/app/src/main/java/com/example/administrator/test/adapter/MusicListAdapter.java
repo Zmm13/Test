@@ -58,7 +58,7 @@ public abstract class MusicListAdapter extends RecyclerView.Adapter<MusicListAda
     public void onBindViewHolder(MusicListAdapter.ViewHolder holder, int position) {
              holder.binding.setSong(list.get(position));
              holder.binding.setIsLight(StaticBaseInfo.isLight(context));
-             holder.binding.setIsPlay(MusicListTool.getInstance().getPlaySong() == null ? false : (MusicListTool.getInstance().getPlaySong().getPath().equals( list.get(position).getPath())));
+             holder.binding.setIsPlay(MusicListTool.getInstance().playSong == null ? false : (MusicListTool.getInstance().playSong.getPath().equals( list.get(position).getPath())));
 //             holder.binding.setIsPlay(position == playPosition);
     }
 

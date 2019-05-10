@@ -21,6 +21,7 @@ import com.example.administrator.test.databinding.FragmentMusicListBinding;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.ReflushEvent;
+import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
 import com.example.administrator.test.utils.MainHandler;
@@ -73,7 +74,8 @@ public class MusicListFragment extends Fragment {
         adapter = new MusicListAdapter(context, list) {
             @Override
             protected void onItemClick(Song song) {
-                ((MainActivity) getActivity()).setPlayPosition(song);
+                MediaPlayerUtils.getInstance().changeMusic(song);
+                EventBus.getDefault().post(new MusicChangeEvent());
             }
         };
         binding.rv.setAdapter(adapter);

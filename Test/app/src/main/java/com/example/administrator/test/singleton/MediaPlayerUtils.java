@@ -68,6 +68,7 @@ public class MediaPlayerUtils {
             }
             mediaPlayer.start();
             isEnd = false;
+            System.out.println("play");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,6 +134,11 @@ public class MediaPlayerUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void changeMusic(Song song){
+        isEnd = true;
+         MusicListTool.getInstance().setPlaySong(song);
     }
 
     public  void setPlayPath(Context context,Song song) {

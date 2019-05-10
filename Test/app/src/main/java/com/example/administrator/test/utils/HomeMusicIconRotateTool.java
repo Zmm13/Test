@@ -16,15 +16,44 @@ public class HomeMusicIconRotateTool {
 
     public static ObjectAnimator objectAnimator = null;
 
-    public static  void rotateView(boolean reset, boolean isPlay, View view) {
-        if(reset){
+    public static boolean isRotate = false;
+
+    public static void rotateView(boolean isRotate, View view) {
+        if (objectAnimator == null) {
+            initAnimator(view);
+        }
+        if (isRotate) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (objectAnimator.isPaused()) {
+                    objectAnimator.resume();
+                    return;
+                }
+            }
+            if (!objectAnimator.isRunning()) {
+                objectAnimator.start();
+            }
+        } else {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    objectAnimator.pause();
+                } else {
+                    objectAnimator.end();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void rotateView(boolean reset, boolean isPlay, View view) {
+        if (reset) {
             objectAnimator = null;
             view.setRotation(0);
             return;
         }
         if (isPlay) {
             if (objectAnimator == null) {
-                     initAnimator(view);
+                initAnimator(view);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 if (objectAnimator.isPaused()) {
@@ -50,7 +79,7 @@ public class HomeMusicIconRotateTool {
         }
     }
 
-    public static void pauseAnimator(){
+    public static void pauseAnimator() {
         if (objectAnimator != null && objectAnimator.isRunning()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 objectAnimator.pause();
@@ -61,7 +90,7 @@ public class HomeMusicIconRotateTool {
     }
 
     @SuppressLint("WrongConstant")
-    private static void initAnimator(View view){
+    private static void initAnimator(View view) {
         objectAnimator = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
         objectAnimator.setDuration(15000);
         objectAnimator.setRepeatCount(Animation.INFINITE);

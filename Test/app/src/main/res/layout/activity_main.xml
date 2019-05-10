@@ -166,7 +166,7 @@
                         android:includeFontPadding="false"
                         android:singleLine="true"
                         android:text="@{duration}"
-                        android:textColor="@{StaticBaseInfo.baseColor2}"
+                        android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
                         android:textSize="@dimen/x8" />
                 </RelativeLayout>
                 <!--android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"-->

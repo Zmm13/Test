@@ -48,6 +48,7 @@ public class MyMusicSercive extends Service {
         startForeground(1, notification);
     }
 
+
     @SuppressLint("WrongConstant")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -143,18 +144,9 @@ public class MyMusicSercive extends Service {
         }
 
         //播放结束
-        public String getShowName() {
-            return MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong().getSinger() + ")";
-        }
-
-        //播放结束
         public Bitmap getIcon() {
             return LocalMusicUtils.getArtwork(MyMusicSercive.this, MusicListTool.getInstance().getPlaySong().key, MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
         }
 
-        //重置播放未知
-        public void setPlayPosition(int position) {
-//            MediaPlayerUtils.getInstance().setPlayPath(position);
-        }
     }
 }
