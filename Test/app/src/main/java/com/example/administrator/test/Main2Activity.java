@@ -1,6 +1,7 @@
 package com.example.administrator.test;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,14 +33,14 @@ import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
 import com.example.administrator.test.service.MusicPlayService;
-import com.example.administrator.test.service.MyMusicSercive;
+import com.example.administrator.test.service.MyTestService;
+import com.example.administrator.test.service.ReceiverService;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.HomeMusicIconRotateTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
 import com.example.administrator.test.utils.MusicTimeTool;
 import com.example.administrator.test.utils.ScreenUtils;
-import com.example.administrator.test.utils.SpTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.StatusBarUtils;
 
@@ -49,7 +50,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import static android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
 import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-import static com.example.administrator.test.utils.LocalMusicUtils.song;
 
 
 public class Main2Activity extends AppCompatActivity {
@@ -67,13 +67,18 @@ public class Main2Activity extends AppCompatActivity {
         //必须先透明状态栏再设置状态栏亮色标记，状态栏图标才会变成暗色
         StatusBarUtils.StatusBarTransport(this);
         StatusBarUtils.statusBarLightMode(this, StaticBaseInfo.isLight(this) ? SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        startReceiverService();
         //初始化view
         initView();
+//        initStaticService();
         //初始化数据
+
+
         initData();
         //初始化监听
         initListener();
         EventBus.getDefault().register(this);
+//        Toast.makeText(Main2Activity.this, new JniUtil().getSomeString(),Toast.LENGTH_SHORT).show();
     }
 
     private void initView() {
@@ -124,6 +129,23 @@ public class Main2Activity extends AppCompatActivity {
                 binding.setProgressTime(MusicTimeTool.getMusicTime(MediaPlayerUtils.getInstance().getProgress()));
             }
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(Main2Activity.this, MyTestService.class);
+                bindService(intent, connectiontest, Context.BIND_AUTO_CREATE);
+                startService(intent);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                unbindService(connectiontest);
+                stopService(intent);
+            }
+        }).start();
+
     }
 
     private void initListener() {
@@ -202,6 +224,7 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
         binding.div.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 RippleAnimation.create(binding.div).setDuration(1500).start();
@@ -210,6 +233,21 @@ public class Main2Activity extends AppCompatActivity {
                 StaticBaseInfo.setBaseColor(Color.parseColor("#FF0000"));
                 binding.setIsLight(StaticBaseInfo.isLight(Main2Activity.this));
                 EventBus.getDefault().post(new IsLightChangeEvent());
+            }
+        });
+        binding.civ.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("WrongConstant")
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setAction("MY_BROADCAST");
+//                intent.setComponent(new ComponentName(Main2Activity.this,
+//                        "com.example.administrator.test.receiver.MyAutoReceiver"));
+//                if (Build.VERSION.SDK_INT >= 26) {
+//                    intent.addFlags(0x01000000);
+//                }
+//                sendOrderedBroadcast(intent,null);
+                sendBroadcast(intent);
             }
         });
     }
@@ -270,6 +308,28 @@ public class Main2Activity extends AppCompatActivity {
             }
         }
     };
+
+
+    private ServiceConnection connectiontest = new ServiceConnection() {
+        /**
+         * 服务解除绑定时候调用
+         */
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            System.out.println("onServiceDisconnected");
+        }
+
+        /**
+         * 绑定服务的时候调用
+         */
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            System.out.println("onServiceConnected");
+        }
+    };
+
 
     @Override
     protected void onStart() {
@@ -358,6 +418,24 @@ public class Main2Activity extends AppCompatActivity {
         } else {
             initService();
         }
+    }
+
+    private void startReceiverService() {
+        Intent intent = new Intent();
+        intent.setClass(this, ReceiverService.class);
+        //开启服务播放音乐
+        if (Build.VERSION.SDK_INT >= 26) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
+    private void initStaticService() {
+        Intent intent = new Intent("com.example.administrator.test.receiver.MyStatic2Receiver");
+        ComponentName componentName = new ComponentName(this, "com.example.administrator.test.receiver.MyStatic2Receiver");
+        intent.setComponent(componentName);
+        sendBroadcast(intent);
     }
 
 }

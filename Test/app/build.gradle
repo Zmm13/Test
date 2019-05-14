@@ -10,6 +10,15 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            moduleName "JNITestSample"
+            abiFilters "armeabi-v7a","arm64-v8a","x86","x86_64"
+        }
+    }
+    externalNativeBuild{
+        ndkBuild{
+          path "src/main/jni/Android.mk"
+        }
     }
     compileOptions {
         targetCompatibility = "8"
@@ -20,16 +29,23 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        sourceSets {
+            main {
+                jni.srcDirs = []
+            }
+        }
     }
     dataBinding {
         enabled = true;
     }
 
-    greendao{
+    greendao {
         schemaVersion 1 //指定数据库schema版本号，迁移等操作会用到；
-        daoPackage 'com.example.administrator.test.daoJavaBean'//通过gradle插件生成的数据库相关文件的包名，默认为你的entity所在的包名；
+        daoPackage 'com.example.administrator.test.daoJavaBean'
+//通过gradle插件生成的数据库相关文件的包名，默认为你的entity所在的包名；
         targetGenDir 'src/main/java' //自定义生成数据库文件的目录，可以将生成的文件放到我们的java目录中，而不是build中，这样就不用额外的设置资源目录了。
     }
+
 }
 
 dependencies {
