@@ -113,6 +113,7 @@ public class MusicListFragment extends Fragment {
             this.list.clear();
             this.list.addAll(songs);
             adapter.notifyDataSetChanged();
+            Toast.makeText(getActivity(),"size:"+this.list.size(),Toast.LENGTH_SHORT).show();
             isLoadData = true;
             System.out.println("Loading......");
         }

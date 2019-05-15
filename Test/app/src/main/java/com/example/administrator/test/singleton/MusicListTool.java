@@ -31,7 +31,7 @@ public class MusicListTool {
 
     private SongDao songDao;
     private DBHelper dbHelper = DBHelper.getInstance();
-    private String TABLE_NAME = "song.db";//数据表的名称
+    public String TABLE_NAME = "song.db";//数据表的名称
 
 
     private MusicListTool() {
