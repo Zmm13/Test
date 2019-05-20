@@ -105,26 +105,27 @@ public class MyInternetFragment extends Fragment {
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         try {
                             String result = response.body().string();
-                            Observable.just(result)
-                                    .map(new MyFunc<List<Song>, String>() {
-                                        @Override
-                                        public Object apply(Object o) throws Exception {
-                                            return null;
-                                        }
-
-                                        @Override
-                                        public List<Song> call(String s) {
-                                            return null;
-                                        }
-                                    })
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new Consumer() {
-                                        @Override
-                                        public void accept(Object o) throws Exception {
-
-                                        }
-                                    })
+                            Toast.makeText(getActivity(),result,Toast.LENGTH_SHORT).show();
+//                            Observable.just(result)
+//                                    .map(new MyFunc<List<Song>, String>() {
+//                                        @Override
+//                                        public Object apply(Object o) throws Exception {
+//                                            return null;
+//                                        }
+//
+//                                        @Override
+//                                        public List<Song> call(String s) {
+//                                            return null;
+//                                        }
+//                                    })
+//                                    .subscribeOn(Schedulers.io())
+//                                    .observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe(new Consumer() {
+//                                        @Override
+//                                        public void accept(Object o) throws Exception {
+//
+//                                        }
+//                                    })
                             binding.setContent(result);
                         } catch (IOException e) {
                             e.printStackTrace();
