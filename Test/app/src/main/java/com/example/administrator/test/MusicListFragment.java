@@ -21,10 +21,12 @@ import com.example.administrator.test.databinding.FragmentMusicListBinding;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.ReflushEvent;
+import com.example.administrator.test.minterfcae.RetrofitIntfTest;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
 import com.example.administrator.test.utils.MainHandler;
+import com.example.administrator.test.utils.RetrofitTool;
 import com.example.administrator.test.utils.SpTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
 
@@ -32,8 +34,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Create by zmm

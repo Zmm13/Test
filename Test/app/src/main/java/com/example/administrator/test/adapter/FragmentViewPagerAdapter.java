@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.example.administrator.test.Home1Fragment;
 import com.example.administrator.test.MusicListFragment;
+import com.example.administrator.test.MyInternetFragment;
 import com.example.administrator.test.MyTestFragment;
 import com.example.administrator.test.SettingFragment;
 
@@ -24,6 +25,8 @@ public class FragmentViewPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case 0:
                 return new MusicListFragment();
+            case 1:
+                return new MyInternetFragment();
             case 3:
                 return new SettingFragment();
             default:

@@ -20,12 +20,13 @@ import retrofit2.http.POST;
  * PackageName com.example.administrator.test.minterfcae
  */
 public interface RetrofitIntfTest {
-//        @GET("ads")
+    //        @GET("ads")
 //    Call<ResponseBody> getAds();
     @FormUrlEncoded               //别丢了
     @POST("/HealthRecordCenter/XMLTest.ashx")
     //接口字段
-//    Call<ResponseBody> getInfo(@Field("strPage") String strPage, @Field("ItemTypeId") String ItemTypeId);
-    Observable< ResponseBody> getInfos(@Field("strPage") String strPage, @Field("ItemTypeId") String ItemTypeId);
+    Call<ResponseBody> getInfo(@Field("strPage") String strPage, @Field("ItemTypeId") String ItemTypeId);
+
+    Observable<ResponseBody> getInfos(@Field("strPage") String strPage, @Field("ItemTypeId") String ItemTypeId);
 //    Observable<ResponseBody> getInfos();
 }
