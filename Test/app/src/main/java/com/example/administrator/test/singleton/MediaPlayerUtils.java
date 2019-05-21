@@ -2,6 +2,7 @@ package com.example.administrator.test.singleton;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.net.Uri;
 
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.event.MusicChangeEvent;
@@ -111,6 +112,7 @@ public class MediaPlayerUtils {
             }
             File file = new File(MusicListTool.getInstance().getPlaySong().getPath());
             mediaPlayer.setDataSource(file.getPath());//指定音频文件路径
+//            mediaPlayer.setDataSource("http://www.ytmp3.cn/down/57799.mp3");
             mediaPlayer.setLooping(loop);//设置为循环播放
             mediaPlayer.prepare();//初始化播放器MediaPlayer
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {

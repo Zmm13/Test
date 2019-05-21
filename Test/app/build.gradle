@@ -12,12 +12,12 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             moduleName "JNITestSample"
-            abiFilters "armeabi-v7a","arm64-v8a","x86","x86_64"
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
     }
-    externalNativeBuild{
-        ndkBuild{
-          path "src/main/jni/Android.mk"
+    externalNativeBuild {
+        ndkBuild {
+            path "src/main/jni/Android.mk"
         }
     }
     compileOptions {
@@ -69,4 +69,18 @@ dependencies {
     implementation 'org.greenrobot:greendao:3.1.0'
     //eventbus
     implementation 'org.greenrobot:eventbus:3.0.0'
+    //fresco
+    // Fresco所需依赖
+//    implementation 'com.facebook.fresco:fresco:0.12.0'
+// 在 API < 14 上的机器支持 WebP 时，需要添加
+//    compile 'com.facebook.fresco:animated-base-support:0.12.0'
+// 支持 GIF 动图，需要添加
+//    compile 'com.facebook.fresco:animated-gif:0.12.0'
+// 支持 WebP （静态图+动图），需要添加
+//    compile 'com.facebook.fresco:animated-webp:0.12.0'
+//    compile 'com.facebook.fresco:webpsupport:0.12.0'
+    //glide
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    //picasso
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 }

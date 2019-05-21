@@ -53,7 +53,7 @@
                 <TextView
                     android:id="@+id/tv2"
                     style="@style/HomeTextViewStyle"
-                    android:text="Second"
+                    android:text="Top100"
                     android:textColor="@{selectedPosition == 1 ? @color/app_base_color : @color/gray_text}" />
 
                 <TextView

@@ -205,4 +205,16 @@ public class JSONUtils {
         return resultData;
     }
 
+    public static boolean isCodeSuccess(String result){
+        boolean b= false;
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            b = jsonObject.getInt(StaticBaseInfo.CODE_SUCCESS_NAME) == StaticBaseInfo.CODE_SUCCESS;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return b;
+        }
+        return b;
+    }
+
 }
