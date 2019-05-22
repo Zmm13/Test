@@ -61,7 +61,9 @@ public class MusicListTool {
     }
 
     public Song getPlaySong() {
-        if (playSong != null && FileTool.isFileExists(playSong.path)) {
+        if(playSong != null && playSong.getPath().contains("http")){
+            return playSong;
+        } else if (playSong != null && FileTool.isFileExists(playSong.path)) {
             return playSong;
         } else {
             for (Song song : list) {
@@ -75,10 +77,15 @@ public class MusicListTool {
     }
 
     public void setPlaySong(Song playSong) {
+        if(playSong!=null && playSong.getPath().contains("http")){
+            this.playSong = playSong;
+            EventBus.getDefault().post(new MusicChangeEvent());
+        }
         if (playSong != null && FileTool.isFileExists(playSong.path)) {
             this.playSong = playSong;
             EventBus.getDefault().post(new MusicChangeEvent());
         }
+
     }
 
     public static void initList(Context context) {

@@ -54,14 +54,16 @@ public class StaticBaseInfo {
     public static final String SONG_LIST_SINGER_NAME = "singer";
     public static final String SONG_LIST_SINGER = "name";
     public static final String SONG_DETAIL = "detail";
+    public static final String SONG_INFO_LIST = "songInfoList";
     //qq音乐新歌top100
     public static final String QQ_NEW_MUSIC_TOP_100_BASEURL = "https://u.y.qq.com/";
     public static final String QQ_NEW_MUSIC_TOP_100_IMAGE_REPLCAE_TAG = "&albumMid&";
     public static final String QQ_NEW_MUSIC_TOP_100_IMAGE_PATH = "https://y.gtimg.cn/music/photo_new/T002R300x300M000&albumMid&.jpg";
     public static final String QQ_NEW_MUSIC_TOP_100_GET_ADD = "cgi-bin/musicu.fcg?-=getUCGI6156166971860477&g_tk=859231619&loginUin=1359163679&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&data=%7B%22detail%22%3A%7B%22module%22%3A%22musicToplist.ToplistInfoServer%22%2C%22method%22%3A%22GetDetail%22%2C%22param%22%3A%7B%22topId%22%3A27%2C%22offset%22%3A0%2C%22num%22%3A20%2C%22period%22%3A%222019-05-21%22%7D%7D%2C%22comm%22%3A%7B%22ct%22%3A24%2C%22cv%22%3A0%7D%7D";
 //    public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_ADD = "cgi-bin/musicu.fcg?-=getplaysongvkey7687284379381651&g_tk=859231619&loginUin=1359163679&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%229733784294%22%2C%22songmid%22%3A%5B%22&SONGMIDID&%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221359163679%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A1359163679%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D";
-    public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_ADD = "cgi-bin/musicu.fcg?";
-    public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_DATA = "%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%229733784294%22%2C%22songmid%22%3A%5B%22&SONGMIDID&%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221359163679%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A1359163679%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D";
+    public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_ADD = "cgi-bin/musicu.fcg?getplaysongvkey";
+//    public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_DATA = "\"req_0\":{\"module\":\"vkey.GetVkeyServer\",\"method\":\"CgiGetVkey\",\"param\":{\"guid\":\"9733784294\",\"songmid\":[\"&SONGMIDID&\"],\"songtype\":[0],\"uin\":\"1359163679\",\"loginflag\":1,\"platform\":\"20\"}},\"comm\":{\"uin\":0,\"format\":\"json\",\"ct\":24,\"cv\":0}}\n";
+    public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_DATA = "%7B\"req_0\"%3A%7B\"module\"%3A\"vkey.GetVkeyServer\"%2C\"method\"%3A\"CgiGetVkey\"%2C\"param\"%3A%7B\"guid\"%3A\"9733784294\"%2C\"songmid\"%3A%5B\"&SONGMIDID&\"%5D%2C\"songtype\"%3A%5B0%5D%2C\"uin\"%3A\"1359163679\"%2C\"loginflag\"%3A1%2C\"platform\"%3A\"20\"%7D%7D%2C\"comm\"%3A%7B\"uin\"%3A1359163679%2C\"format\"%3A\"json\"%2C\"ct\"%3A24%2C\"cv\"%3A0%7D%7D";
     public static final String QQ_NEW_MUSIC_TOP_100_GET_KEY_REPLACE_TAG="&SONGMIDID&";
     public static final String QQ_NEW_MUSIC_TOP_100_PLAY="http://dl.stream.qqmusic.qq.com/";
     public static final String QQ_NEW_MUSIC_TOP_100_PLAY_ADD="C400&SONGMIDID&.m4a?guid=9733784294&vkey=&KEY&&uin=4383&fromtag=66";

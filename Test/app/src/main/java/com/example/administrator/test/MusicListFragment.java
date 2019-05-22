@@ -121,7 +121,7 @@ public class MusicListFragment extends Fragment {
             this.list.clear();
             this.list.addAll(songs);
             adapter.notifyDataSetChanged();
-            Toast.makeText(getActivity(),"size:"+this.list.size(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "size:" + this.list.size(), Toast.LENGTH_SHORT).show();
             isLoadData = true;
             System.out.println("Loading......");
         }
@@ -158,19 +158,22 @@ public class MusicListFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MusicChangeEvent event) {
-        //处理逻辑
-        if (list != null && list.size() > 0) {
-            if (playSong != null) {
-                adapter.notifyItemChanged(playSong.getId().intValue() - 1);
+            //处理逻辑
+            if (list != null && list.size() > 0) {
+                if (playSong != null&& playSong.getId()!=null){
+                    adapter.notifyItemChanged(playSong.getId().intValue() - 1);
+                }
+                if(MusicListTool.getInstance().getPlaySong().getId()!=null){
+                    adapter.notifyItemChanged(MusicListTool.getInstance().getPlaySong().getId().intValue() - 1);
+                }
             }
-            adapter.notifyItemChanged(MusicListTool.getInstance().getPlaySong().getId().intValue() - 1);
-        }
-        playSong = MusicListTool.getInstance().getPlaySong();
+            playSong = MusicListTool.getInstance().getPlaySong();
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(IsLightChangeEvent event) {
-       if(adapter!=null){
-           adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
         }
     }
 

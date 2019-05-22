@@ -11,7 +11,9 @@ import com.example.administrator.test.QqTop100Song;
 import com.example.administrator.test.R;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ItemQqTop100MusicBinding;
+import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.entity.QqNewMusicTop100;
+import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
 
@@ -24,9 +26,9 @@ import java.util.List;
  */
 public abstract class QqTop100Adapter extends RecyclerView.Adapter<QqTop100Adapter.ViewHolder> {
     private Context context;
-    private List<QqNewMusicTop100> list;
+    private List<QQMusic> list;
 //    private int playPosition = -1;
-    public QqTop100Adapter(Context context, List<QqNewMusicTop100> list) {
+    public QqTop100Adapter(Context context, List<QQMusic> list) {
         this.context = context;
         this.list = list;
     }
@@ -40,7 +42,7 @@ public abstract class QqTop100Adapter extends RecyclerView.Adapter<QqTop100Adapt
             public void onClick(View view) {
                 int p = viewHolder.getAdapterPosition();
                 if(p >= 0 && p< list.size()){
-                    onItemClick(list.get(p));
+                    onItemClick(list.get(p),p);
                 }
 
             }
@@ -52,7 +54,7 @@ public abstract class QqTop100Adapter extends RecyclerView.Adapter<QqTop100Adapt
     public void onBindViewHolder(QqTop100Adapter.ViewHolder holder, int position) {
              holder.binding.setSong(list.get(position));
              holder.binding.setIsLight(StaticBaseInfo.isLight(context));
-             holder.binding.setIsPlay(false);
+             holder.binding.setIsPlay(MusicListTool.getInstance().playSong == null ? false :(MusicListTool.getInstance().playSong.getPath().contains(list.get(position).getMid())));
     }
 
     @Override
@@ -68,5 +70,6 @@ public abstract class QqTop100Adapter extends RecyclerView.Adapter<QqTop100Adapt
         }
     }
 
-    protected abstract void onItemClick(QqNewMusicTop100 song);
+    protected abstract void onItemClick(QQMusic song,int p);
+
 }

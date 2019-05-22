@@ -7,6 +7,7 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Transient;
 
 /**
  * Create by zmm
@@ -32,6 +33,16 @@ public class Song implements Parcelable {
     public String path;//歌曲地址
     @Property(nameInDb = "ALBUMID")
     public long albumId;//图片id
+    @Transient
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public Song() {
 
@@ -56,7 +67,7 @@ public class Song implements Parcelable {
 
     @Generated(hash = 1799090712)
     public Song(Long id, long key, String name, String singer, long size,
-                int duration, String path, long albumId) {
+            int duration, String path, long albumId) {
         this.id = id;
         this.key = key;
         this.name = name;

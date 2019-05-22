@@ -3,8 +3,10 @@ package com.example.administrator.test.singleton;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.example.administrator.test.daoJavaBean.Song;
+import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.MusicChangeEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -110,19 +112,26 @@ public class MediaPlayerUtils {
             if(MusicListTool.getInstance().getPlaySong() == null ){
                 MusicListTool.getInstance().setPlaySong(MusicListTool.getInstance().getList(context).get(0));
             }
-            File file = new File(MusicListTool.getInstance().getPlaySong().getPath());
-            mediaPlayer.setDataSource(file.getPath());//指定音频文件路径
-//            mediaPlayer.setDataSource("http://www.ytmp3.cn/down/57799.mp3");
+            if(MusicListTool.getInstance().getPlaySong().getPath().contains("http")){
+            mediaPlayer.setDataSource(context,Uri.parse(MusicListTool.getInstance().getPlaySong().getPath()));
+            }else {
+                File file = new File(MusicListTool.getInstance().getPlaySong().getPath());
+                mediaPlayer.setDataSource(file.getPath());//指定音频文件路径
+            }
             mediaPlayer.setLooping(loop);//设置为循环播放
             mediaPlayer.prepare();//初始化播放器MediaPlayer
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     isEnd = true;
-                    Long position = MusicListTool.getInstance().getPlaySong().getId();
-                    Long next= (position+1) < MusicListTool.getInstance().getList(context).size() ? (position+1) : 0;
-                    MusicListTool.getInstance().setPlaySong(MusicListTool.getInstance().getList(context).get((int) next.longValue()));
-                    playMusic(context);
+                    if(MusicListTool.getInstance().getPlaySong().getPath().contains("http")){
+                        EventBus.getDefault().post(new EventInternetMusicEnd());
+                    }else {
+                        Long position = MusicListTool.getInstance().getPlaySong().getId();
+                        Long next = (position + 1) < MusicListTool.getInstance().getList(context).size() ? (position) : 0;
+                        MusicListTool.getInstance().setPlaySong(MusicListTool.getInstance().getList(context).get((int) next.longValue()));
+                        playMusic(context);
+                    }
                 }
             });
             mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -130,6 +139,8 @@ public class MediaPlayerUtils {
                 public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
                     resetMusic();
                     isEnd = true;
+                    mediaPlayer.stop();
+                    Toast.makeText(context,"资源不可用，播放失败！",Toast.LENGTH_SHORT).show();
                     return true;
                 }
             });
@@ -139,7 +150,7 @@ public class MediaPlayerUtils {
     }
 
     public void changeMusic(Song song){
-        isEnd = true;
+         isEnd = true;
          MusicListTool.getInstance().setPlaySong(song);
     }
 

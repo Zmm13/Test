@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -43,6 +44,8 @@ import com.example.administrator.test.utils.MusicTimeTool;
 import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.StatusBarUtils;
+import com.example.administrator.test.utils.TextUtil;
+import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -282,12 +285,17 @@ public class Main2Activity extends AppCompatActivity {
                         public void run() {
                             if (binding.getShowName() == null || !binding.getShowName().equals(song.getName() + "(" + song.singer + ")")) {
                                 binding.setShowName(song.getName() + "(" + song + ")");
-                                Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
-                                if (bitmap != null) {
-                                    binding.civ.setImageBitmap(bitmap);
-                                } else {
-                                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
+                                if(TextUtil.isEmpty(song.getImageUrl())){
+                                    Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
+                                    if (bitmap != null) {
+                                        binding.civ.setImageBitmap(bitmap);
+                                    } else {
+                                        binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
+                                    }
+                                }else {
+                                    Picasso.with(Main2Activity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
                                 }
+
                             }
                             binding.ivPlay.setSelected(musicPlayBinder.isPlay());
                             binding.setShowName(song.getName() + "(" + song.singer + ")");
