@@ -19,14 +19,16 @@ public class FragmentViewPagerAdapter extends FragmentPagerAdapter {
         super(fm);
         this.contents = contents;
     }
-
+    public FragmentViewPagerAdapter(FragmentManager fm) {
+        super(fm);
+    }
     @Override
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new MusicListFragment();
-            case 1:
                 return new MyInternetFragment();
+            case 1:
+                 return new MusicListFragment();
             case 3:
                 return new SettingFragment();
             default:
@@ -37,6 +39,6 @@ public class FragmentViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return contents.length;
+        return 4;
     }
 }

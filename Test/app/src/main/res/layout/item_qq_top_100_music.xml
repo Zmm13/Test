@@ -73,7 +73,12 @@
             android:text="@{song.singerNames}"
             android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
             android:textSize="@dimen/x8" />
-
+        <ImageView
+            android:layout_width="@dimen/x15"
+            android:layout_height="@dimen/x15"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/love_star"
+            android:layout_centerVertical="true"/>
         <!--<ImageView-->
         <!--android:id="@+id/iv_menu"-->
         <!--android:layout_width="wrap_content"-->

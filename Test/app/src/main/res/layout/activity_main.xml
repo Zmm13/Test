@@ -22,15 +22,21 @@
         <variable
             name="showName"
             type="String" />
+
         <variable
             name="isLight"
-            type="Boolean"/>
+            type="Boolean" />
+
+        <variable
+            name="context"
+            type="android.content.Context"/>
     </data>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:id="@+id/ll"
             android:layout_width="match_parent"
@@ -38,35 +44,51 @@
             android:background="@{isLight ? StaticBaseInfo.baseColor_light : StaticBaseInfo.baseColor_dark}"
             android:orientation="vertical"
             tools:context=".MainActivity">
+
             <LinearLayout
                 android:id="@+id/ll_item"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/x30"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:elevation="@dimen/x3"
+                android:background="@{isLight ? StaticBaseInfo.box_dark : StaticBaseInfo.box_light}">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/x32"
+                    android:layout_weight="2" />
 
                 <TextView
                     android:id="@+id/tv1"
                     style="@style/HomeTextViewStyle"
-                    android:text="Local"
-                    android:textColor="@{selectedPosition == 0 ? @color/app_base_color : @color/gray_text}" />
+                    android:textSize="@{selectedPosition == 0 ? StaticBaseInfo.getItemTextSizeSelect(context) : StaticBaseInfo.getItemTextSizeSimple(context)}"
+                    android:text="@{selectedPosition == 0 ? @string/item0_select : @string/item0}"
+                    android:textColor="@{isLight ? (selectedPosition == 0 ? @color/app_base_color :  StaticBaseInfo.baseColor_dark) : (selectedPosition == 0 ? @color/app_base_color : StaticBaseInfo.baseColor_light)}" />
 
                 <TextView
                     android:id="@+id/tv2"
                     style="@style/HomeTextViewStyle"
-                    android:text="Top100"
-                    android:textColor="@{selectedPosition == 1 ? @color/app_base_color : @color/gray_text}" />
+                    android:textSize="@{selectedPosition == 1 ? StaticBaseInfo.getItemTextSizeSelect(context) : StaticBaseInfo.getItemTextSizeSimple(context)}"
+                    android:text="@{selectedPosition == 1 ? @string/item1_select : @string/item1}"
+                    android:textColor="@{isLight ? (selectedPosition == 1 ? @color/app_base_color :  StaticBaseInfo.baseColor_dark) : (selectedPosition == 1 ? @color/app_base_color : StaticBaseInfo.baseColor_light)}" />
 
                 <TextView
                     android:id="@+id/tv3"
                     style="@style/HomeTextViewStyle"
-                    android:text="Third"
-                    android:textColor="@{selectedPosition == 2 ? @color/app_base_color : @color/gray_text}" />
+                    android:textSize="@{selectedPosition == 2 ? StaticBaseInfo.getItemTextSizeSelect(context) : StaticBaseInfo.getItemTextSizeSimple(context)}"
+                    android:text="@{selectedPosition == 2 ? @string/item2_select : @string/item2}"
+                    android:textColor="@{isLight ? (selectedPosition == 2 ? @color/app_base_color :  StaticBaseInfo.baseColor_dark) : (selectedPosition == 2 ? @color/app_base_color : StaticBaseInfo.baseColor_light)}" />
 
                 <TextView
                     android:id="@+id/tv4"
                     style="@style/HomeTextViewStyle"
-                    android:text="Setting"
-                    android:textColor="@{selectedPosition == 3 ? @color/app_base_color : @color/gray_text}" />
+                    android:textSize="@{selectedPosition == 3 ? StaticBaseInfo.getItemTextSizeSelect(context) : StaticBaseInfo.getItemTextSizeSimple(context)}"
+                    android:text="@{selectedPosition == 3 ? @string/item3_select : @string/item3}"
+                    android:textColor="@{isLight ? (selectedPosition == 3 ? @color/app_base_color :  StaticBaseInfo.baseColor_dark) : (selectedPosition == 3 ? @color/app_base_color : StaticBaseInfo.baseColor_light)}" />
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/x32"
+                    android:layout_weight="2" />
             </LinearLayout>
 
             <Button
@@ -78,10 +100,10 @@
                 android:textAllCaps="false"
                 android:visibility="gone" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/x1"
-                android:background="@{isLight ? StaticBaseInfo.color_divider_dark : StaticBaseInfo.color_divider_light}" />
+            <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/x1"-->
+                <!--android:background="@{isLight ? StaticBaseInfo.color_divider_dark : StaticBaseInfo.color_divider_light}" />-->
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/vp"
@@ -89,16 +111,18 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"></android.support.v4.view.ViewPager>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/x1"
-                android:background="@{isLight ? StaticBaseInfo.color_divider_dark : StaticBaseInfo.color_divider_light}"/>
+            <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/x1"-->
+                <!--android:background="@{isLight ? StaticBaseInfo.color_divider_dark : StaticBaseInfo.color_divider_light}" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/x45"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:elevation="@dimen/x3"
+                android:background="@{isLight ? StaticBaseInfo.box_dark : StaticBaseInfo.box_light}">
 
                 <com.example.administrator.test.MyView.CircleImageView
                     android:id="@+id/civ"
@@ -137,9 +161,9 @@
                         android:minHeight="@dimen/x2"
                         android:paddingLeft="@dimen/x5"
                         android:paddingRight="@dimen/x5"
-                        android:progressDrawable="@drawable/seekbar_bg"
+                        android:progressDrawable="@{isLight ? @drawable/seekbar_bg_dark : @drawable/seekbar_bg_light}"
                         android:splitTrack="false"
-                        android:thumb="@drawable/seekbar_thumb_bg"
+                        android:thumb="@{isLight ? @drawable/seekbar_thumb_bg_dark : @drawable/seekbar_thumb_bg_light}"
                         android:thumbOffset="@dimen/x5" />
 
                     <TextView
@@ -177,20 +201,21 @@
                     android:layout_height="@dimen/x30"
                     android:layout_marginRight="@dimen/x10"
                     android:scaleType="fitXY"
-                    android:src="@drawable/selector_play_button" />
+                    android:src="@{isLight ? @drawable/selector_play_button_dark : @drawable/selector_play_button_light}" />
             </LinearLayout>
 
         </LinearLayout>
+
         <com.example.administrator.test.MyView.DragImageView
             android:id="@+id/div"
             android:layout_width="@dimen/x35"
             android:layout_height="@dimen/x35"
-            android:src="@{isLight ? @drawable/lightbulb_dark : @drawable/lightbulb_light}"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/x12"
             android:layout_marginBottom="@dimen/x60"
+            android:layout_marginRight="@dimen/x12"
+            android:src="@{isLight ? @drawable/lightbulb_dark : @drawable/lightbulb_light}"
             app:side_padding="@dimen/x12"
-            />
+            android:visibility="gone"/>
     </RelativeLayout>
 </layout>

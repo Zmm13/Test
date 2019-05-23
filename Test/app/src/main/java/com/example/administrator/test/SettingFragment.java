@@ -115,7 +115,7 @@ public class SettingFragment extends Fragment {
             isLoadData=true;
             System.out.println("Loading......");
         }else if(isLoadData){
-            Toast.makeText(context,"isLoadData："+isLoadData,Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context,"isLoadData："+isLoadData,Toast.LENGTH_SHORT).show();
         }
     }
 

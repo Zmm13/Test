@@ -11,7 +11,7 @@ import retrofit2.http.GET;
  * Time 2019/5/21
  * PackageName com.example.administrator.test.minterfcae
  */
-public interface QqNewMusicTop100Interf {
-    @GET(StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_GET_ADD)
+public interface QqHotMusicInterf {
+    @GET(StaticBaseInfo.QQ_NEW_MUSIC_HOT)
     Observable<ResponseBody> getInfos();
 }

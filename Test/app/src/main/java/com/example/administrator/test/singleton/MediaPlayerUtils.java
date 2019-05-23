@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import com.example.administrator.test.daoJavaBean.Song;
+import com.example.administrator.test.event.BufferUpdateEvent;
 import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.MusicChangeEvent;
 
@@ -142,6 +143,12 @@ public class MediaPlayerUtils {
                     mediaPlayer.stop();
                     Toast.makeText(context,"资源不可用，播放失败！",Toast.LENGTH_SHORT).show();
                     return true;
+                }
+            });
+            mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                @Override
+                public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
+                    EventBus.getDefault().post(new BufferUpdateEvent(i));
                 }
             });
         } catch (Exception e) {

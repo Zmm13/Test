@@ -30,6 +30,7 @@ import com.example.administrator.test.MyView.RippleAnimation;
 import com.example.administrator.test.adapter.FragmentViewPagerAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ActivityMainBinding;
+import com.example.administrator.test.event.BufferUpdateEvent;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
@@ -87,11 +88,13 @@ public class Main2Activity extends AppCompatActivity {
     private void initView() {
         //利用databinding设置布局文件并初始化databinding对象
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setContext(this);
         binding.setIsLight(StaticBaseInfo.isLight(this));
         //由于是全屏设置线性布局第一个子view与顶部的距离，避免状态栏和页面重合
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.llItem.getLayoutParams();
-        layoutParams.topMargin = ScreenUtils.getStatusHeight(this);
-        binding.llItem.setLayoutParams(layoutParams);
+//        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.llItem.getLayoutParams();
+//        layoutParams.topMargin = ;
+        binding.llItem.setPadding(0,ScreenUtils.getStatusHeight(this),0,0);
+//        binding.llItem.setLayoutParams(layoutParams);
     }
 
     private void initData() {
@@ -100,7 +103,7 @@ public class Main2Activity extends AppCompatActivity {
         //设置viewpager缓存三页
         binding.vp.setOffscreenPageLimit(3);
         //初始化viewpager适配器
-        adapter = new FragmentViewPagerAdapter(getSupportFragmentManager(), new int[]{1, 2, 3, 4});
+        adapter = new FragmentViewPagerAdapter(getSupportFragmentManager());
         binding.vp.setAdapter(adapter);
         //获取音乐
         if (ContextCompat.checkSelfPermission(Main2Activity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -426,6 +429,13 @@ public class Main2Activity extends AppCompatActivity {
         } else {
             initService();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(BufferUpdateEvent event) {
+        int i = binding.seekBar.getMax()*event.getPercent()/100;
+        System.out.println("SecondaryProgress:"+i);
+       binding.seekBar.setSecondaryProgress(i);
     }
 
     private void startReceiverService() {

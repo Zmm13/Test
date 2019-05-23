@@ -15,9 +15,8 @@
     <!--主页选项样式-->
     <style name="HomeTextViewStyle">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_height">@dimen/x32</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:textSize">@dimen/x10</item>
         <item name="android:textColor">#cacaca</item>
         <item name="android:gravity">center</item>
     </style>

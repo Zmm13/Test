@@ -135,7 +135,7 @@ public class MusicListFragment extends Fragment {
                 prepareFetchData();
             }
         } else if (isLoadData) {
-            Toast.makeText(context, "isLoadData：" + isLoadData, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "isLoadData：" + isLoadData, Toast.LENGTH_SHORT).show();
         }
     }
 

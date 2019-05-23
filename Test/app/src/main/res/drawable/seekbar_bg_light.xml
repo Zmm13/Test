@@ -5,7 +5,7 @@
             <!--圆角程度-->
             <size android:height="@dimen/x2"/>
             <corners android:radius="@dimen/x1" />
-            <solid android:color="#22000000" />
+            <solid android:color="#22ffffff" />
         </shape>
     </item>    <!--进度颜色-->
 
@@ -14,7 +14,7 @@
             <shape>
                 <size android:height="@dimen/x2"/>
                 <corners android:radius="@dimen/x1" />
-                <solid android:color="#44000000" />
+                <solid android:color="#44ffffff" />
             </shape>
         </clip>
     </item>
@@ -25,7 +25,7 @@
                 <!--圆角程度-->
                 <size android:height="@dimen/x2" />
                 <corners android:radius="@dimen/x1" />
-                <solid android:color="@color/app_base_color2" />
+                <solid android:color="#ffffff" />
             </shape>
         </clip>
     </item>

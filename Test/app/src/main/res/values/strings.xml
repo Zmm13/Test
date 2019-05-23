@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Test</string>
+    <string name="item0">网络</string>
+    <string name="item0_select"><b>网络</b></string>
+    <string name="item1">本地</string>
+    <string name="item1_select"><b>本地</b></string>
+    <string name="item2">NULL</string>
+    <string name="item2_select"><b>NULL</b></string>
+    <string name="item3">设置</string>
+    <string name="item3_select"><b>设置</b></string>
 </resources>

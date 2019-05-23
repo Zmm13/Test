@@ -83,4 +83,11 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     //picasso
     implementation 'com.squareup.picasso:picasso:2.5.2'
+
+    //滚动导航页
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'cn.bingoogolapple:bga-banner:2.2.6@aar'
+
+    //圆角imageview
+    implementation 'com.makeramen:roundedimageview:2.3.0'
 }
