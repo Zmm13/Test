@@ -7,6 +7,9 @@
         <variable
             name="content"
             type="String"/>
+        <variable
+            name="isSelected"
+            type="Boolean"/>
         <import type="com.example.administrator.test.utils.StaticBaseInfo" />
     </data>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,15 +17,12 @@
         android:layout_height="wrap_content">
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:paddingLeft="@dimen/x10"
-            android:paddingRight="@dimen/x10"
-            android:paddingTop="@dimen/x9"
-            android:paddingBottom="@dimen/x9"
             android:text="@{content}"
             android:gravity="center"
-            android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark: StaticBaseInfo.baseColor_light}"
-            android:textSize="@dimen/x12"
+            android:textColor="@{isSelected ? @color/app_base_color:(isLight ? StaticBaseInfo.baseColor_dark: StaticBaseInfo.baseColor_light)}"
+            android:textSize="@dimen/x10"
             android:includeFontPadding="false"/>
     </LinearLayout>
 </layout>

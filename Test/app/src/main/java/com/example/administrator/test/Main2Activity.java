@@ -136,21 +136,21 @@ public class Main2Activity extends AppCompatActivity {
             }
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(Main2Activity.this, MyTestService.class);
-                bindService(intent, connectiontest, Context.BIND_AUTO_CREATE);
-                startService(intent);
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                unbindService(connectiontest);
-                stopService(intent);
-            }
-        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Intent intent = new Intent(Main2Activity.this, MyTestService.class);
+//                bindService(intent, connectiontest, Context.BIND_AUTO_CREATE);
+//                startService(intent);
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                unbindService(connectiontest);
+//                stopService(intent);
+//            }
+//        }).start();
 
     }
 
@@ -178,7 +178,6 @@ public class Main2Activity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     binding.vp.setCurrentItem(finalI, false);
-                    binding.setSelectedPosition(finalI);
                 }
             });
         }

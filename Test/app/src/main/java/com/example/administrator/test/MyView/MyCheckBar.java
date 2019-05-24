@@ -35,7 +35,7 @@ public class MyCheckBar extends View {
     private int bg_color_checked;
     private int circle_color_default;
     private int circle_color_checked;
-    private long mDuration = 1500;
+    private long mDuration = 1000;
     private float width_change;
 
     private AnimatorListenerAdapter mAnimatorListener;

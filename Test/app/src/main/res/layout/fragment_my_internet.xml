@@ -3,19 +3,26 @@
 
     <data>
 
+        <import type="com.example.administrator.test.utils.StaticBaseInfo" />
+
         <variable
             name="content"
             type="String" />
+
+        <variable
+            name="isLight"
+            type="Boolean" />
     </data>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <cn.bingoogolapple.bgabanner.BGABanner
             android:id="@+id/banner_guide_content"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x120"
-            android:layout_marginBottom="@dimen/x5"
             android:paddingLeft="@dimen/x10"
             android:paddingRight="@dimen/x10"
             app:banner_pageChangeDuration="1000"
@@ -24,27 +31,60 @@
             app:banner_pointDrawable="@drawable/selected_banner_dot"
             app:banner_pointTopBottomMargin="@dimen/x5"
             app:banner_transitionEffect="alpha" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x10"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="歌单推荐"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+            android:textSize="@dimen/x12"
+            android:textStyle="bold" />
         <android.support.v7.widget.RecyclerView
-            android:layout_below="@+id/banner_guide_content"
-            android:id="@+id/rv_item"
-            android:layout_marginBottom="@dimen/x5"
+            android:id="@+id/rv_item_gedan_tuijian"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"></android.support.v7.widget.RecyclerView>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv"
-            android:layout_below="@+id/rv_item"
+            android:scrollbars="none"
+            android:layout_marginTop="@dimen/x10"></android.support.v7.widget.RecyclerView>
+        <com.example.administrator.test.MyView.MyXRecyclerView
+            android:id="@+id/mrv_gedan"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal"
+            android:layout_marginTop="@dimen/x5"
+            android:paddingLeft="@dimen/x10"
+            android:paddingRight="@dimen/x10"></com.example.administrator.test.MyView.MyXRecyclerView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x10"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="排行榜"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+            android:textSize="@dimen/x12"
+            android:textStyle="bold" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginTop="@dimen/x10"></android.support.v7.widget.RecyclerView>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
         <ProgressBar
             android:id="@+id/pb"
             android:layout_width="@dimen/x30"
             android:layout_height="@dimen/x30"
-            android:visibility="gone"
-            android:layout_centerInParent="true"/>
-    </RelativeLayout>
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+    </LinearLayout>
 
 </layout>
 

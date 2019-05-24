@@ -1,12 +1,17 @@
 package com.example.administrator.test.presenter;
 
+import com.example.administrator.test.entity.GeDanInfo;
 import com.example.administrator.test.entity.QQMuiscSinger;
 import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.entity.QQMusicAlbum;
 import com.example.administrator.test.entity.QQMusicFocus;
-import com.example.administrator.test.event.QQMusicFocusEvent;
+import com.example.administrator.test.event.GeDan;
+import com.example.administrator.test.event.GeDanInfoEvent;
+import com.example.administrator.test.event.QQMusicShouYeInfoEvent;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
+import com.example.administrator.test.event.ShouYeInfo;
+import com.example.administrator.test.minterfcae.QQMusicSelectGeDanByItemId;
 import com.example.administrator.test.minterfcae.QqCoolMusicInterf;
 import com.example.administrator.test.minterfcae.QqHotMusicInterf;
 import com.example.administrator.test.minterfcae.QqMusicShouYeInterface;
@@ -44,15 +49,27 @@ public class MyInternetPresenter {
     public void getShouYeInfo() {
         QqMusicShouYeInterface qqMusicShouYeInterface = RetrofitTool.getInstance().get(QqMusicShouYeInterface.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (qqMusicShouYeInterface != null) {
-            qqMusicShouYeInterface.getInfos().map(new Function<ResponseBody, List<QQMusicFocus>>() {
+            qqMusicShouYeInterface.getInfos().map(new Function<ResponseBody, ShouYeInfo>() {
                 @Override
-                public List<QQMusicFocus> apply(ResponseBody responseBody) throws Exception {
+                public ShouYeInfo apply(ResponseBody responseBody) throws Exception {
                     String result = responseBody.string();
                     JSONObject object1 = new JSONObject(result);
+                    ShouYeInfo shouYeInfo = new ShouYeInfo();
+//                    解析歌单信息
+                    JSONArray array1 = object1.getJSONObject("category").getJSONObject("data").getJSONArray("category").getJSONObject(0).getJSONArray("items");
+                    if (array1 != null && array1.length() > 0) {
+                        List<GeDan> list = new ArrayList<>();
+                        for (int i = 0; i < array1.length(); i++) {
+                            JSONObject object = array1.getJSONObject(i);
+                            list.add(GsonTool.getInstance().getObject(GeDan.class, object.toString()));
+                        }
+                        shouYeInfo.setGeDans(list);
+                    }
+                    //解析精彩推荐
                     JSONArray array = object1.getJSONObject("focus").getJSONObject("data").getJSONArray("content");
-                    if(array!=null && array.length()>0){
+                    if (array != null && array.length() > 0) {
                         List<QQMusicFocus> list = new ArrayList<>();
-                        for(int i = 0;i<array.length();i++){
+                        for (int i = 0; i < array.length(); i++) {
                             JSONObject object11 = array.getJSONObject(i);
                             QQMusicFocus focus = new QQMusicFocus();
                             focus.setId(object11.getString("id"));
@@ -60,23 +77,20 @@ public class MyInternetPresenter {
                             focus.setPic_url(object11.getJSONObject("pic_info").getString("url"));
                             list.add(focus);
                         }
-                        return list;
+                        shouYeInfo.setFocusList(list);
                     }
-
-                    return null;
+                    return shouYeInfo;
                 }
             }).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<QQMusicFocus>>() {
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<ShouYeInfo>() {
                 @Override
                 public void onSubscribe(Disposable d) {
 
                 }
 
                 @Override
-                public void onNext(List<QQMusicFocus> qqMusicFoci) {
-                      if(qqMusicFoci!=null&&qqMusicFoci.size()>0){
-                          EventBus.getDefault().post(new QQMusicFocusEvent(qqMusicFoci));
-                      }
+                public void onNext(ShouYeInfo shouYeInfo) {
+                    EventBus.getDefault().post(new QQMusicShouYeInfoEvent(shouYeInfo));
                 }
 
                 @Override
@@ -92,7 +106,7 @@ public class MyInternetPresenter {
         }
     }
 
-    public void getNewMusics(){
+    public void getNewMusics() {
         QqNewMusicInterf top100Interface = RetrofitTool.getInstance().get(QqNewMusicInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (top100Interface != null)
             top100Interface.getInfos()
@@ -150,7 +164,7 @@ public class MyInternetPresenter {
                     });
     }
 
-    public void getNeiDiMusics(){
+    public void getNeiDiMusics() {
         QqNeiDiMusicInterf top100Interface = RetrofitTool.getInstance().get(QqNeiDiMusicInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (top100Interface != null)
             top100Interface.getInfos()
@@ -207,7 +221,8 @@ public class MyInternetPresenter {
                         }
                     });
     }
-    public void getOuMeiMusics(){
+
+    public void getOuMeiMusics() {
         QqOuMeiMusicInterf top100Interface = RetrofitTool.getInstance().get(QqOuMeiMusicInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (top100Interface != null)
             top100Interface.getInfos()
@@ -265,7 +280,7 @@ public class MyInternetPresenter {
                     });
     }
 
-    public void getRiBenMusics(){
+    public void getRiBenMusics() {
         QqRiBenMusicInterf top100Interface = RetrofitTool.getInstance().get(QqRiBenMusicInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (top100Interface != null)
             top100Interface.getInfos()
@@ -323,7 +338,7 @@ public class MyInternetPresenter {
                     });
     }
 
-    public void getHotMusics(){
+    public void getHotMusics() {
         QqHotMusicInterf top100Interface = RetrofitTool.getInstance().get(QqHotMusicInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (top100Interface != null)
             top100Interface.getInfos()
@@ -381,7 +396,7 @@ public class MyInternetPresenter {
                     });
     }
 
-    public void getCoolMusics(){
+    public void getCoolMusics() {
         QqCoolMusicInterf top100Interface = RetrofitTool.getInstance().get(QqCoolMusicInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (top100Interface != null)
             top100Interface.getInfos()
@@ -440,8 +455,7 @@ public class MyInternetPresenter {
     }
 
 
-
-    public void getMusicInfo(QQMusic song){
+    public void getMusicInfo(QQMusic song) {
         QqNewMusicTop100GetKeyInterf qqNewMusicTop100GetKeyInterf = RetrofitTool.getInstance().get(QqNewMusicTop100GetKeyInterf.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
         if (qqNewMusicTop100GetKeyInterf != null) {
             qqNewMusicTop100GetKeyInterf.getInfos(
@@ -474,7 +488,7 @@ public class MyInternetPresenter {
 
                         @Override
                         public void onNext(String s) {
-                           EventBus.getDefault().post(new QQMusicGetKeyEvent(s,song));
+                            EventBus.getDefault().post(new QQMusicGetKeyEvent(s, song));
                         }
 
                         @Override
@@ -489,4 +503,53 @@ public class MyInternetPresenter {
                     });
         }
     }
+
+
+    public void getGeDan(String itemId) {
+        QQMusicSelectGeDanByItemId qqMusicSelectGeDanByItemId = RetrofitTool.getInstance().get(QQMusicSelectGeDanByItemId.class, StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_BASEURL, true, false);
+        if (qqMusicSelectGeDanByItemId != null) {
+            qqMusicSelectGeDanByItemId.getInfos(StaticBaseInfo.QQ_MUSIC_GE_DAN_SELECT_BY_ITEM_ID_DATA.replace(StaticBaseInfo.QQ_MUSIC_GE_DAN_SELECT_BY_ITEM_ID_REPLACE, itemId))
+                    .map(new Function<ResponseBody, List<GeDanInfo>>() {
+                        @Override
+                        public List<GeDanInfo> apply(ResponseBody responseBody) throws Exception {
+                            String s = responseBody.string();
+                            List<GeDanInfo> list = null;
+                            JSONObject object = new JSONObject(s);
+                            JSONArray array = object.getJSONObject("playlist").getJSONObject("data").getJSONArray("v_playlist");
+                            if(array!=null && array.length()>0){
+                                list = new ArrayList<>();
+                                for(int i = 0;i<array.length();i++){
+                                    list.add(GsonTool.getInstance().getObject(GeDanInfo.class,array.getJSONObject(i).toString()));
+                                }
+                            }
+                            return list;
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<GeDanInfo>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(List<GeDanInfo> geDanInfos) {
+                           EventBus.getDefault().post(new GeDanInfoEvent(geDanInfos));
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        }
+    }
+
+
 }

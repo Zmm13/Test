@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +88,19 @@ public class MusicListFragment extends Fragment {
             }
         };
         binding.rv.setAdapter(adapter);
+        binding.rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                adapter.setFirstPosition(linearLayoutManager.findFirstVisibleItemPosition());
+                adapter.setLastPosition(linearLayoutManager.findLastVisibleItemPosition());
+            }
+        });
         return view;
     }
 

@@ -105,7 +105,7 @@ public class SettingFragment extends Fragment {
                     if(binding.cb.isChange()){
                         return;
                     }
-                    RippleAnimation.create(binding.cb).setDuration(1500).start();
+                    RippleAnimation.create(binding.cb).setDuration(1000).start();
                     StaticBaseInfo.fanIsLight(getActivity());
                     binding.setIsLight( StaticBaseInfo.isLight(getActivity()));
                     StatusBarUtils.statusBarLightMode(getActivity(), StaticBaseInfo.isLight(getActivity())? SYSTEM_UI_FLAG_LIGHT_STATUS_BAR :SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);

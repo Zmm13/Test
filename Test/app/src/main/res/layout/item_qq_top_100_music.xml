@@ -48,6 +48,8 @@
             android:src="@drawable/play_state"
             android:visibility="@{isPlay ? View.VISIBLE : View.GONE}" />
 
+
+
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="match_parent"

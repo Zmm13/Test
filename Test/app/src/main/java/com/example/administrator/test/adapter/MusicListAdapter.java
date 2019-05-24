@@ -16,6 +16,7 @@ import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ItemMusicBinding;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.ItemAnimationTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
 
 /**
@@ -26,21 +27,32 @@ import com.example.administrator.test.utils.StaticBaseInfo;
 public abstract class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.ViewHolder> {
     private Context context;
     private List<Song> list;
-//    private int playPosition = -1;
-    public MusicListAdapter( Context context,List<Song> list) {
+    private int firstPosition = -1;
+
+    public void setFirstPosition(int firstPosition) {
+        this.firstPosition = firstPosition;
+    }
+
+    public void setLastPosition(int lastPosition) {
+        this.lastPosition = lastPosition;
+    }
+
+    private int lastPosition = -1;
+
+    public MusicListAdapter(Context context, List<Song> list) {
         this.context = context;
         this.list = list;
     }
 
     @Override
     public MusicListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(context).inflate(R.layout.item_music,null,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_music, null, false);
         ViewHolder viewHolder = new ViewHolder(view);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int p = viewHolder.getAdapterPosition();
-                if(p >= 0 && p< list.size()){
+                if (p >= 0 && p < list.size()) {
                     onItemClick(list.get(p));
 //                    notifyItemChanged(p);
                 }
@@ -56,10 +68,14 @@ public abstract class MusicListAdapter extends RecyclerView.Adapter<MusicListAda
 
     @Override
     public void onBindViewHolder(MusicListAdapter.ViewHolder holder, int position) {
-             holder.binding.setSong(list.get(position));
-             holder.binding.setIsLight(StaticBaseInfo.isLight(context));
-             holder.binding.setIsPlay(MusicListTool.getInstance().playSong == null ? false : (MusicListTool.getInstance().playSong.getPath().equals( list.get(position).getPath())));
-//             holder.binding.setIsPlay(position == playPosition);
+        holder.binding.setSong(list.get(position));
+        holder.binding.setIsLight(StaticBaseInfo.isLight(context));
+        holder.binding.setIsPlay(MusicListTool.getInstance().playSong == null ? false : (MusicListTool.getInstance().playSong.getPath().equals(list.get(position).getPath())));
+        if (position > lastPosition && lastPosition != -1) {//这里就是动画的应用
+            ItemAnimationTool.loadAnimationUp(holder.binding.getRoot(), context);
+        } else if (position < firstPosition && lastPosition != -1) {
+            ItemAnimationTool.loadAnimationDown(holder.binding.getRoot(), context);
+        }
     }
 
     @Override
@@ -69,6 +85,7 @@ public abstract class MusicListAdapter extends RecyclerView.Adapter<MusicListAda
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public ItemMusicBinding binding;
+
         public ViewHolder(View itemView) {
             super(itemView);
             binding = DataBindingUtil.bind(itemView);

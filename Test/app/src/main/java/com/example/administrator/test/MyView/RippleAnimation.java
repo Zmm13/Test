@@ -88,8 +88,11 @@ public class RippleAnimation extends View {
                     int newWidth = onClickView.getWidth() / 2;
                     int newHeight = onClickView.getHeight() / 2;
                     //计算起点位置
-                    float startX = getAbsoluteX(onClickView) + newWidth;
-                    float startY = getAbsoluteY(onClickView) + newHeight;
+                    int[] i = getAbsolute(onClickView);
+                    float startX = i[0] + newWidth;
+                    float startY = i[1] + newHeight;
+//                    float startX = getAbsoluteX(onClickView) + newWidth;
+//                    float startY = getAbsoluteY(onClickView) + newHeight;
                     //起始半径
                     //因为我们要避免遮挡按钮
                     int radius = Math.max(newWidth, newHeight);
@@ -132,6 +135,12 @@ public class RippleAnimation extends View {
             x += getAbsoluteX((View) parent);
         }
         return x;
+    }
+
+    private static int[] getAbsolute(View view){
+        int[] location = new  int[2] ;
+        view.getLocationInWindow(location); //获取在当前窗口内的绝对坐标
+        return location;
     }
 
     /**

@@ -90,4 +90,6 @@ dependencies {
 
     //圆角imageview
     implementation 'com.makeramen:roundedimageview:2.3.0'
+    //niceSpinner
+//    implementation 'com.github.arcadefire:nice-spinner:1.4'
 }

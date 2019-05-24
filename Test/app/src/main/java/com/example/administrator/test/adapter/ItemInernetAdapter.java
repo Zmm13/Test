@@ -20,6 +20,16 @@ import com.example.administrator.test.utils.StaticBaseInfo;
 public abstract class ItemInernetAdapter extends RecyclerView.Adapter<ItemInernetAdapter.ViewHolder> {
     private List<String> list;
     private Context context;
+    private int selectedItem = 0;
+
+    public void setSelectedItem(int selectedItem) {
+        if(this.selectedItem != selectedItem){
+            int i = this.selectedItem;
+            this.selectedItem = selectedItem;
+            notifyItemChanged(i);
+            notifyItemChanged(this.selectedItem);
+        }
+    }
 
     public ItemInernetAdapter(List<String> list, Context context) {
         this.list = list;
@@ -43,6 +53,7 @@ public abstract class ItemInernetAdapter extends RecyclerView.Adapter<ItemInerne
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.binding.setContent(list.get(position));
         holder.binding.setIsLight(StaticBaseInfo.isLight(context));
+        holder.binding.setIsSelected(position == selectedItem);
     }
 
     @Override
