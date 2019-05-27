@@ -1,6 +1,8 @@
 package com.example.administrator.test.event;
 
 import com.example.administrator.test.entity.QQMusicFocus;
+import com.example.administrator.test.entity.QQTopGroup;
+import com.example.administrator.test.entity.QQTopListInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,15 @@ import java.util.List;
 public class ShouYeInfo {
     private List<QQMusicFocus> focusList;
     private List<GeDan> geDans;
+    private List<QQTopGroup> qqTopGroups;
+
+    public List<QQTopGroup> getQqTopGroups() {
+        return qqTopGroups;
+    }
+
+    public void setQqTopGroups(List<QQTopGroup> qqTopListInfos) {
+        this.qqTopGroups = qqTopListInfos;
+    }
 
     public List<QQMusicFocus> getFocusList() {
         return focusList;

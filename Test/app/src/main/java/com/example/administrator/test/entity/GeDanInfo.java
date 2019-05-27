@@ -4,6 +4,7 @@ import android.databinding.BindingAdapter;
 import android.net.Uri;
 import android.widget.ImageView;
 
+import com.example.administrator.test.R;
 import com.example.administrator.test.utils.ShowLongNumberTools;
 import com.squareup.picasso.Picasso;
 

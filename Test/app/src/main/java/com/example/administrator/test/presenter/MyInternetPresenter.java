@@ -5,6 +5,8 @@ import com.example.administrator.test.entity.QQMuiscSinger;
 import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.entity.QQMusicAlbum;
 import com.example.administrator.test.entity.QQMusicFocus;
+import com.example.administrator.test.entity.QQTopGroup;
+import com.example.administrator.test.entity.QQTopListInfo;
 import com.example.administrator.test.event.GeDan;
 import com.example.administrator.test.event.GeDanInfoEvent;
 import com.example.administrator.test.event.QQMusicShouYeInfoEvent;
@@ -56,29 +58,59 @@ public class MyInternetPresenter {
                     JSONObject object1 = new JSONObject(result);
                     ShouYeInfo shouYeInfo = new ShouYeInfo();
 //                    解析歌单信息
-                    JSONArray array1 = object1.getJSONObject("category").getJSONObject("data").getJSONArray("category").getJSONObject(0).getJSONArray("items");
-                    if (array1 != null && array1.length() > 0) {
-                        List<GeDan> list = new ArrayList<>();
-                        for (int i = 0; i < array1.length(); i++) {
-                            JSONObject object = array1.getJSONObject(i);
-                            list.add(GsonTool.getInstance().getObject(GeDan.class, object.toString()));
+                    if(object1.getInt("code") != StaticBaseInfo.CODE_SUCCESS){
+                         return null;
+                    }
+                    if(object1.getJSONObject("category").getInt("code") == StaticBaseInfo.CODE_SUCCESS){
+                        JSONArray array1 = object1.getJSONObject("category").getJSONObject("data").getJSONArray("category").getJSONObject(0).getJSONArray("items");
+                        if (array1 != null && array1.length() > 0) {
+                            List<GeDan> list = new ArrayList<>();
+                            for (int i = 0; i < array1.length(); i++) {
+                                JSONObject object = array1.getJSONObject(i);
+                                list.add(GsonTool.getInstance().getObject(GeDan.class, object.toString()));
+                            }
+                            shouYeInfo.setGeDans(list);
                         }
-                        shouYeInfo.setGeDans(list);
                     }
                     //解析精彩推荐
-                    JSONArray array = object1.getJSONObject("focus").getJSONObject("data").getJSONArray("content");
-                    if (array != null && array.length() > 0) {
-                        List<QQMusicFocus> list = new ArrayList<>();
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject object11 = array.getJSONObject(i);
-                            QQMusicFocus focus = new QQMusicFocus();
-                            focus.setId(object11.getString("id"));
-                            focus.setUrl(object11.getJSONObject("jump_info").getString("url"));
-                            focus.setPic_url(object11.getJSONObject("pic_info").getString("url"));
-                            list.add(focus);
+                    if(object1.getJSONObject("focus").getInt("code") == StaticBaseInfo.CODE_SUCCESS) {
+                        JSONArray array = object1.getJSONObject("focus").getJSONObject("data").getJSONArray("content");
+                        if (array != null && array.length() > 0) {
+                            List<QQMusicFocus> list = new ArrayList<>();
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject object11 = array.getJSONObject(i);
+                                QQMusicFocus focus = new QQMusicFocus();
+                                focus.setId(object11.getString("id"));
+                                focus.setUrl(object11.getJSONObject("jump_info").getString("url"));
+                                focus.setPic_url(object11.getJSONObject("pic_info").getString("url"));
+                                list.add(focus);
+                            }
+                            shouYeInfo.setFocusList(list);
                         }
-                        shouYeInfo.setFocusList(list);
                     }
+                    //排行榜
+                    if(object1.getJSONObject("toplist").getInt("code") == StaticBaseInfo.CODE_SUCCESS) {
+                        JSONArray array2 = object1.getJSONObject("toplist").getJSONObject("data").getJSONArray("group");
+                        if (array2 != null && array2.length() > 0) {
+                            List<QQTopGroup> list = new ArrayList<>();
+                            for (int i = 0; i < array2.length(); i++) {
+                                JSONObject object = array2.getJSONObject(i);
+                                JSONArray array = object.getJSONArray("toplist") ;
+                                QQTopGroup group = GsonTool.getInstance().getObject(QQTopGroup.class,object.toString());
+                                if(group != null&&array!=null&&array.length()>0){
+                                    List<QQTopListInfo> qqTopListInfos = new ArrayList<>();
+                                    for(int j = 0;j<array.length();j++){
+                                          QQTopListInfo qqTopListInfo = GsonTool.getInstance().getObject(QQTopListInfo.class,array.getJSONObject(j).toString());
+                                    qqTopListInfos.add(qqTopListInfo);
+                                    }
+                                    group.setQqTopListInfos(qqTopListInfos);
+                                }
+                                list.add(group);
+                            }
+                            shouYeInfo.setQqTopGroups(list);
+                        }
+                    }
+
                     return shouYeInfo;
                 }
             }).subscribeOn(Schedulers.io())

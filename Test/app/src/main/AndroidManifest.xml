@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".base.MyApplication"
@@ -22,6 +22,7 @@
             android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -30,6 +31,7 @@
         <service android:name=".service.MusicPlayService" />
         <service android:name=".service.ReceiverService" />
         <service android:name=".service.MyTestService" />
+
         <receiver android:name=".receiver.MyAuto2Receiver" />
         <receiver android:name=".receiver.MyAutoReceiver" />
         <receiver
@@ -39,13 +41,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="MY_BROADCAST" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </receiver>
+
         <provider
-            android:authorities="com.example.administrator.test.provider.myContentProvider"
             android:name=".provider.MyContentProvider"
-            android:exported="true"/>
+            android:authorities="com.example.administrator.test.provider.myContentProvider"
+            android:exported="true" />
+
+        <activity android:name=".MusicPlayShowActivity"></activity>
     </application>
 
 </manifest>

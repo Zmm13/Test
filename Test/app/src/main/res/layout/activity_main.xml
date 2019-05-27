@@ -44,7 +44,6 @@
             android:background="@{isLight ? StaticBaseInfo.baseColor_light : StaticBaseInfo.baseColor_dark}"
             android:orientation="vertical"
             tools:context=".MainActivity">
-
             <LinearLayout
                 android:id="@+id/ll_item"
                 android:layout_width="match_parent"
@@ -90,7 +89,6 @@
                     android:layout_height="@dimen/x32"
                     android:layout_weight="2" />
             </LinearLayout>
-
             <Button
                 android:id="@+id/bt"
                 android:layout_width="wrap_content"

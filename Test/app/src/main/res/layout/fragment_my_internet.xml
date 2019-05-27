@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
         <cn.bingoogolapple.bgabanner.BGABanner
             android:id="@+id/banner_guide_content"
             android:layout_width="match_parent"
@@ -42,12 +41,34 @@
             android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
             android:textSize="@dimen/x12"
             android:textStyle="bold" />
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_item_gedan_tuijian"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x20"
             android:scrollbars="none"
-            android:layout_marginTop="@dimen/x10"></android.support.v7.widget.RecyclerView>
+            android:paddingRight="@dimen/x10"
+            android:paddingLeft="@dimen/x10"
+            android:layout_gravity="center_horizontal">
+            <com.flyco.tablayout.CommonTabLayout
+                android:id="@+id/ctl"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:tl_textSelectColor="@color/app_base_color"
+                app:tl_textUnselectColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                app:tl_textsize="@dimen/x10"
+                app:tl_indicator_color="@color/app_base_color"
+                app:tl_indicator_height="@dimen/x1"
+                app:tl_textBold="true"
+                app:tl_tab_space_equal="false"
+                app:tl_indicator_width="@dimen/x20"
+                app:tl_tab_padding="@dimen/x5"
+                ></com.flyco.tablayout.CommonTabLayout>
+        </HorizontalScrollView>
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/rv_item_gedan_tuijian"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:scrollbars="none"-->
+            <!--android:layout_marginTop="@dimen/x10"></android.support.v7.widget.RecyclerView>-->
         <com.example.administrator.test.MyView.MyXRecyclerView
             android:id="@+id/mrv_gedan"
             android:layout_width="match_parent"
@@ -67,17 +88,36 @@
             android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
             android:textSize="@dimen/x12"
             android:textStyle="bold" />
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_item"
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x20"
+            android:scrollbars="none"
+            android:paddingRight="@dimen/x10"
+            android:paddingLeft="@dimen/x10"
+            android:layout_gravity="center_horizontal">
+            <com.flyco.tablayout.CommonTabLayout
+                android:id="@+id/ctl_top_list"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:tl_textSelectColor="@color/app_base_color"
+                app:tl_textUnselectColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
+                app:tl_textsize="@dimen/x10"
+                app:tl_indicator_color="@color/app_base_color"
+                app:tl_indicator_height="@dimen/x1"
+                app:tl_textBold="true"
+                app:tl_tab_space_equal="false"
+                app:tl_indicator_width="@dimen/x20"
+                app:tl_tab_padding="@dimen/x5"
+                ></com.flyco.tablayout.CommonTabLayout>
+        </HorizontalScrollView>
+        <com.example.administrator.test.MyView.MyXRecyclerView
+            android:id="@+id/mrv_top_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginTop="@dimen/x10"></android.support.v7.widget.RecyclerView>
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+            android:scrollbars="horizontal"
+            android:layout_marginTop="@dimen/x5"
+            android:paddingLeft="@dimen/x10"
+            android:paddingRight="@dimen/x10"></com.example.administrator.test.MyView.MyXRecyclerView>
         <ProgressBar
             android:id="@+id/pb"
             android:layout_width="@dimen/x30"

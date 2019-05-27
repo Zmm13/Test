@@ -2,7 +2,6 @@ package com.example.administrator.test.adapter;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,9 @@ import android.widget.RelativeLayout;
 
 import com.example.administrator.test.R;
 import com.example.administrator.test.databinding.ItemGeDanBinding;
+import com.example.administrator.test.databinding.ItemTopListBinding;
 import com.example.administrator.test.entity.GeDanInfo;
-import com.example.administrator.test.event.GeDan;
+import com.example.administrator.test.entity.QQTopListInfo;
 import com.example.administrator.test.utils.Res;
 import com.example.administrator.test.utils.ScreenUtils;
 
@@ -24,15 +24,15 @@ import java.util.List;
  * Time 2019/5/24
  * PackageName com.example.administrator.test.adapter
  */
-public class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
+public abstract class TopListAdapter extends RecyclerView.Adapter<TopListAdapter.ViewHoler> {
     private Context context;
-    private List<GeDanInfo> list;
+    private List<QQTopListInfo> list;
     private int x;
     private int divider;
     private RelativeLayout.LayoutParams layoutParams;
     private LinearLayout.LayoutParams layoutParams2;
 
-    public GeDanAdapter(Context context, List<GeDanInfo> list,RecyclerView recyclerView) {
+    public TopListAdapter(Context context, List<QQTopListInfo> list, RecyclerView recyclerView) {
         this.context = context;
         this.list = list;
         divider = (int) Res.getDimen(R.dimen.x10, context);
@@ -46,14 +46,20 @@ public class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
 
     @Override
     public ViewHoler onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_ge_dan, null, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_top_list, null, false);
         ViewHoler holer = new ViewHoler(view);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClick(holer.getAdapterPosition());
+            }
+        });
         return holer;
     }
 
     @Override
     public void onBindViewHolder(ViewHoler holder, int position) {
-        holder.binding.setGeDan(list.get(position));
+        holder.binding.setInfo(list.get(position));
         if (position != 0) {
             layoutParams.setMargins(divider, 0, 0, 0);
         } else {
@@ -69,11 +75,13 @@ public class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
     }
 
     class ViewHoler extends RecyclerView.ViewHolder {
-        ItemGeDanBinding binding;
+        ItemTopListBinding binding;
 
         public ViewHoler(View itemView) {
             super(itemView);
             binding = DataBindingUtil.bind(itemView);
         }
     }
+
+    protected abstract void onItemClick(int position);
 }

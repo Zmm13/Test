@@ -31,6 +31,7 @@ import com.example.administrator.test.adapter.FragmentViewPagerAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ActivityMainBinding;
 import com.example.administrator.test.event.BufferUpdateEvent;
+import com.example.administrator.test.event.HomeFragmentChangeEvent;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
@@ -39,6 +40,7 @@ import com.example.administrator.test.service.MyTestService;
 import com.example.administrator.test.service.ReceiverService;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.FcoTablayoutTools;
 import com.example.administrator.test.utils.HomeMusicIconRotateTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
 import com.example.administrator.test.utils.MusicTimeTool;
@@ -46,11 +48,15 @@ import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.StatusBarUtils;
 import com.example.administrator.test.utils.TextUtil;
+import com.flyco.tablayout.CommonTabLayout;
+import com.flyco.tablayout.listener.CustomTabEntity;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
 
 import static android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
 import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
@@ -62,6 +68,7 @@ public class Main2Activity extends AppCompatActivity {
     private MusicPlayService.MusicPlayBinder musicPlayBinder;//服务绑定数据传递对象
     private boolean isTouchSeekBar = false;//主页seekbar是否触摸
     private Intent intent;//播放音乐服务的intent对象
+//    private String[] titles = new String[]{"发现","音乐","本地","设置"};
 
 
     @Override
@@ -95,11 +102,14 @@ public class Main2Activity extends AppCompatActivity {
 //        layoutParams.topMargin = ;
         binding.llItem.setPadding(0,ScreenUtils.getStatusHeight(this),0,0);
 //        binding.llItem.setLayoutParams(layoutParams);
+//        binding.ctl.setTabData(FcoTablayoutTools.getEntities(titles));
+
     }
 
     private void initData() {
         //设置viewpage默认第一页
         binding.setSelectedPosition(0);
+//        binding.ctl.setCurrentTab(0);
         //设置viewpager缓存三页
         binding.vp.setOffscreenPageLimit(3);
         //初始化viewpager适配器
@@ -164,13 +174,14 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 binding.setSelectedPosition(position);
+//                binding.ctl.setCurrentTab(position);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
             }
         });
-        //设置模块点击事件
+//        设置模块点击事件
         TextView[] items = new TextView[]{binding.tv1, binding.tv2, binding.tv3, binding.tv4};
         for (int i = 0; i < items.length; i++) {
             int finalI = i;
@@ -435,6 +446,12 @@ public class Main2Activity extends AppCompatActivity {
         int i = binding.seekBar.getMax()*event.getPercent()/100;
         System.out.println("SecondaryProgress:"+i);
        binding.seekBar.setSecondaryProgress(i);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HomeFragmentChangeEvent event) {
+        int i = event.getToPosition();
+       binding.vp.setCurrentItem(i,false);
     }
 
     private void startReceiverService() {

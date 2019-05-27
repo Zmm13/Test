@@ -18,22 +18,30 @@ import android.widget.Toast;
 import com.example.administrator.test.adapter.GeDanAdapter;
 import com.example.administrator.test.adapter.ItemInernetAdapter;
 import com.example.administrator.test.adapter.QqTop100Adapter;
+import com.example.administrator.test.adapter.TopListAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.entity.QQMusic;
+import com.example.administrator.test.entity.QQTopGroup;
+import com.example.administrator.test.entity.QQTopListInfo;
 import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.GeDanInfoEvent;
+import com.example.administrator.test.event.HomeFragmentChangeEvent;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
+import com.example.administrator.test.event.QQInternetMusicListChangeEvent;
 import com.example.administrator.test.event.QQMusicShouYeInfoEvent;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
 import com.example.administrator.test.presenter.MyInternetPresenter;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.FcoTablayoutTools;
 import com.example.administrator.test.utils.Res;
 import com.example.administrator.test.databinding.FragmentMyInternetBinding;
+import com.example.administrator.test.utils.SpTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
+import com.flyco.tablayout.listener.OnTabSelectListener;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -54,14 +62,14 @@ public class MyInternetFragment extends Fragment {
     private boolean isVisibleToUser = false;
     private boolean isLoadData = false;
     private FragmentMyInternetBinding binding;
-    private QqTop100Adapter adapter;
-    private ItemInernetAdapter itemInernetAdapter;
-    private ItemInernetAdapter itemInernetAdapter1;
-    private List<QQMusic> list;
     private List<String> items;
     private Song playSong = null;
     private final String TAG = "MyInternetFragment";
     private MyInternetPresenter presenter;
+
+    private  TopListAdapter topListAdapter;
+    private List<QQTopListInfo> qqTopListInfos;
+    private List<QQTopGroup> qqTopGroups;
 
     private String[] itemsName = new String[]{"流行榜", "热歌榜", "新歌榜", "内地榜", "欧美榜", "日本榜"};
 
@@ -82,39 +90,30 @@ public class MyInternetFragment extends Fragment {
         binding.setIsLight(StaticBaseInfo.isLight(getActivity()));
         presenter = new MyInternetPresenter();
         view = binding.getRoot();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        binding.rv.setLayoutManager(linearLayoutManager);
-        list = new ArrayList<>();
-        adapter = new QqTop100Adapter(getActivity(), list) {
+
+        qqTopGroups = new ArrayList<>();
+        qqTopListInfos = new ArrayList<>();
+        topListAdapter = new TopListAdapter(getActivity(),qqTopListInfos,binding.mrvTopList) {
             @Override
-            protected void onItemClick(QQMusic song, int p) {
-                selectSong(song);
+            protected void onItemClick(int position) {
+                EventBus.getDefault().post(new HomeFragmentChangeEvent(1));
+                EventBus.getDefault().post(new QQInternetMusicListChangeEvent(qqTopListInfos.get(position)));
             }
         };
-        binding.rv.setAdapter(adapter);
-        binding.rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        binding.mrvTopList.setAdapter(topListAdapter);
+        binding.ctlTopList.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
+            public void onTabSelect(int position) {
+                qqTopListInfos.clear();
+                qqTopListInfos.addAll(qqTopGroups.get(position).getQqTopListInfos());
+                topListAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                adapter.setFirstPosition(linearLayoutManager.findFirstVisibleItemPosition());
-                adapter.setLastPosition(linearLayoutManager.findLastVisibleItemPosition());
+            public void onTabReselect(int position) {
+
             }
         });
-
-
-        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getActivity());
-        linearLayoutManager1.setOrientation(LinearLayoutManager.HORIZONTAL);
-        binding.rvItem.setLayoutManager(linearLayoutManager1);
-        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(getActivity());
-        linearLayoutManager2.setOrientation(LinearLayoutManager.HORIZONTAL);
-        binding.rvItemGedanTuijian.setLayoutManager(linearLayoutManager2);
-
         return view;
     }
 
@@ -138,95 +137,15 @@ public class MyInternetFragment extends Fragment {
 
             presenter.getShouYeInfo();
 
-            presenter.getCoolMusics();
-
-            itemInernetAdapter = new ItemInernetAdapter(Arrays.asList(itemsName), getActivity()) {
-                @Override
-                protected void oItemClick(int position) {
-                    itemInernetAdapter.setSelectedItem(position);
-                    switch (position) {
-                        case 0:
-                            presenter.getCoolMusics();
-                            break;
-                        case 1:
-                            presenter.getHotMusics();
-                            break;
-                        case 2:
-                            presenter.getNewMusics();
-                            break;
-                        case 3:
-                            presenter.getNeiDiMusics();
-                            break;
-                        case 4:
-                            presenter.getOuMeiMusics();
-                            break;
-                        case 5:
-                            presenter.getRiBenMusics();
-                            break;
-                    }
-                }
-            };
-            binding.rvItem.setAdapter(itemInernetAdapter);
-
             isLoadData = true;
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(IsLightChangeEvent event) {
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-        if (itemInernetAdapter != null) {
-            itemInernetAdapter.notifyDataSetChanged();
-        }
         if (binding != null) {
             binding.setIsLight(StaticBaseInfo.isLight(getActivity()));
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(EventInternetMusicEnd event) {
-        QQMusic qqMusic = null;
-        if (list != null && list.size() > 0) {
-            if (playSong == null) {
-                qqMusic = list.get(0);
-            } else {
-                for (int i = 0; i < list.size(); i++) {
-                    if (playSong.getPath().contains(list.get(i).getMid())) {
-                        qqMusic = list.get(i + 1 < list.size() ? i + 1 : 0);
-                        break;
-                    }
-                }
-            }
-        }
-        if (qqMusic != null)
-            selectSong(qqMusic);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MusicChangeEvent event) {
-        //处理逻辑
-        if (list != null && list.size() > 0) {
-            boolean a = false;
-            boolean b = false;
-            for (int i = 0; i < list.size(); i++) {
-                if (playSong != null) {
-                    if (!a && playSong.getPath().contains(list.get(i).getMid())) {
-                        adapter.notifyItemChanged(i);
-                        a = true;
-                    }
-                }
-                if (!b && MusicListTool.getInstance().getPlaySong().getPath().contains(list.get(i).getMid())) {
-                    adapter.notifyItemChanged(i);
-                    b = true;
-                }
-                if (a && b) {
-                    break;
-                }
-            }
-        }
-        playSong = MusicListTool.getInstance().getPlaySong();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -249,32 +168,41 @@ public class MyInternetFragment extends Fragment {
             });
             binding.bannerGuideContent.setData(event.getUrls(), null);
 
-            itemInernetAdapter1 = new ItemInernetAdapter(event.shouYeInfo.getNames(), getActivity()) {
+            binding.ctl.setTabData(FcoTablayoutTools.getEntities(event.shouYeInfo.getGeDans()));
+            binding.ctl.setOnTabSelectListener(new OnTabSelectListener() {
                 @Override
-                protected void oItemClick(int position) {
-                    itemInernetAdapter1.setSelectedItem(position);
+                public void onTabSelect(int position) {
                     presenter.getGeDan(event.shouYeInfo.getGeDans().get(position).getItem_id());
                 }
-            };
-            binding.rvItemGedanTuijian.setAdapter(itemInernetAdapter1);
 
+                @Override
+                public void onTabReselect(int position) {
+
+                }
+            });
+
+//            itemInernetAdapter1 = new ItemInernetAdapter(event.shouYeInfo.getNames(), getActivity()) {
+//                @Override
+//                protected void oItemClick(int position) {
+//                    itemInernetAdapter1.setSelectedItem(position);
+//                    presenter.getGeDan(event.shouYeInfo.getGeDans().get(position).getItem_id());
+//                }
+//            };
+//            binding.rvItemGedanTuijian.setAdapter(itemInernetAdapter1);
             presenter.getGeDan(event.shouYeInfo.getGeDans().get(0).getItem_id());
+            qqTopGroups = event.shouYeInfo.getQqTopGroups();
+            binding.ctlTopList.setTabData(FcoTablayoutTools.getEntities2(qqTopGroups));
+            qqTopListInfos.clear();
+            qqTopListInfos.addAll(qqTopGroups.get(0).getQqTopListInfos());
+            topListAdapter.notifyDataSetChanged();
         } catch (Exception e) {
 
         }
 
     }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(QQNewMusicEvent event) {
-        list.clear();
-        list.addAll(event.getList());
-        adapter.notifyDataSetChanged();
-        Toast.makeText(getActivity(), event.getList().size() + "", Toast.LENGTH_SHORT).show();
-    }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(GeDanInfoEvent event) {
-        GeDanAdapter geDanAdapter = new GeDanAdapter(getActivity(),event.list);
+        GeDanAdapter geDanAdapter = new GeDanAdapter(getActivity(),event.list,binding.mrvGedan);
         binding.mrvGedan.setAdapter(geDanAdapter);
     }
 
