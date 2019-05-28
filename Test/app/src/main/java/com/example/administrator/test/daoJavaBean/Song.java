@@ -35,6 +35,16 @@ public class Song implements Parcelable {
     public long albumId;//图片id
     @Transient
     private String imageUrl;
+    @Transient
+    private String mid;
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
 
     public String getImageUrl() {
         return imageUrl;

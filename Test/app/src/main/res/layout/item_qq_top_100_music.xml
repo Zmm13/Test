@@ -36,26 +36,12 @@
             android:layout_marginRight="@dimen/x5"
             app:imagePath="@{song.songImagePath}"
             android:layout_centerVertical="true"/>
-
-        <ImageView
-            android:id="@+id/iv_paly"
-            android:layout_width="@dimen/x15"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/x5"
-            android:layout_toRightOf="@+id/iv_icon"
-            android:adjustViewBounds="true"
-            android:src="@drawable/play_state"
-            android:visibility="@{isPlay ? View.VISIBLE : View.GONE}" />
-
-
-
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/x45"
-            android:layout_toRightOf="@+id/iv_paly"
+            android:layout_toRightOf="@+id/iv_icon"
             android:ellipsize="end"
             android:includeFontPadding="false"
             android:maxLines="1"
@@ -70,17 +56,27 @@
             android:layout_below="@+id/tv_name"
             android:layout_marginRight="@dimen/x45"
             android:layout_marginTop="@dimen/x5"
-            android:layout_toRightOf="@+id/iv_paly"
+            android:layout_toRightOf="@+id/iv_icon"
             android:includeFontPadding="false"
             android:text="@{song.singerNames}"
             android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
             android:textSize="@dimen/x8" />
+        <!--<ImageView-->
+            <!--android:layout_width="@dimen/x15"-->
+            <!--android:layout_height="@dimen/x15"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:src="@drawable/love_star"-->
+            <!--android:layout_centerVertical="true"/>-->
+
         <ImageView
+            android:id="@+id/iv_paly"
             android:layout_width="@dimen/x15"
-            android:layout_height="@dimen/x15"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:src="@drawable/love_star"
-            android:layout_centerVertical="true"/>
+            android:adjustViewBounds="true"
+            android:src="@drawable/play_state"
+            android:visibility="@{isPlay ? View.VISIBLE : View.GONE}" />
         <!--<ImageView-->
         <!--android:id="@+id/iv_menu"-->
         <!--android:layout_width="wrap_content"-->

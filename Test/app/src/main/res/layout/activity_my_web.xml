@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="isLight"
+            type="Boolean" />
+
+        <import type="com.example.administrator.test.utils.StaticBaseInfo" />
+
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/rl_main"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@{isLight ? StaticBaseInfo.baseColor_light : StaticBaseInfo.baseColor_dark}"
+        tools:context=".MyWebActivity">
+    </RelativeLayout>
+</layout>

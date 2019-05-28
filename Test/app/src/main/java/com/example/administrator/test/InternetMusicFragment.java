@@ -23,9 +23,11 @@ import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.QQInternetMusicListChangeEvent;
+import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.event.QQNewMusicEvent;
 import com.example.administrator.test.presenter.InternetMusicPresenter;
 import com.example.administrator.test.presenter.MyInternetPresenter;
+import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
 
@@ -141,12 +143,12 @@ public class InternetMusicFragment extends Fragment {
             boolean b = false;
             for (int i = 0; i < list.size(); i++) {
                 if (playSong != null) {
-                    if (!a && playSong.getPath().contains(list.get(i).getMid())) {
+                    if (!a && list.get(i).getMid().equals(playSong.getMid())) {
                         adapter.notifyItemChanged(i);
                         a = true;
                     }
                 }
-                if (!b && MusicListTool.getInstance().getPlaySong().getPath().contains(list.get(i).getMid())) {
+                if (!b && list.get(i).getMid().equals(MusicListTool.getInstance().getPlaySong().getMid())) {
                     adapter.notifyItemChanged(i);
                     b = true;
                 }
@@ -166,7 +168,7 @@ public class InternetMusicFragment extends Fragment {
                 qqMusic = list.get(0);
             } else {
                 for (int i = 0; i < list.size(); i++) {
-                    if (playSong.getPath().contains(list.get(i).getMid())) {
+                    if (list.get(i).getMid().equals(playSong.getMid())) {
                         qqMusic = list.get(i + 1 < list.size() ? i + 1 : 0);
                         break;
                     }
@@ -192,6 +194,12 @@ public class InternetMusicFragment extends Fragment {
            presenter.getMusicsList(event.getInfo().getTopId()+"",event.getInfo().getPeriod());
        }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(QQMusicFocuse10002Event event) {
+        presenter.getMusicsList(event.getS());
+    }
+
     @Override
     public void onResume() {
         super.onResume();

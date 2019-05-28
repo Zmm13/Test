@@ -5,6 +5,7 @@ import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.entity.QQMusicAlbum;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
+import com.example.administrator.test.minterfcae.QQMusicFocusInterface;
 import com.example.administrator.test.minterfcae.QqCoolMusicInterf;
 import com.example.administrator.test.minterfcae.QqMusicListInterf;
 import com.example.administrator.test.minterfcae.QqNewMusicTop100GetKeyInterf;
@@ -165,6 +166,75 @@ public class InternetMusicPresenter  {
                                             song.setSingers(list1);
                                         }
                                         QQMusicAlbum album = GsonTool.getInstance().getObject(QQMusicAlbum.class, array.getJSONObject(i).getJSONObject("album").toString());
+                                        song.setQqMusicAlbum(album);
+                                        list.add(song);
+                                    }
+                                    return list;
+                                }
+                            }
+                            return null;
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<QQMusic>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(List<QQMusic> songs) {
+                            if (songs != null && songs.size() > 0) {
+                                EventBus.getDefault().post(new QQNewMusicEvent(songs));
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                        }
+
+                        @Override
+                        public void onComplete() {
+                        }
+                    });
+    }
+
+    public void getMusicsList(String id) {
+        QQMusicFocusInterface qqMusicFocusInterface = RetrofitTool.getInstance().get(QQMusicFocusInterface.class, StaticBaseInfo.QQ_MUSIC_FOCUS_BASE_URL, true, false);
+        if (qqMusicFocusInterface != null)
+            qqMusicFocusInterface.getInfos(id)
+                    .map(new Function<ResponseBody, List<QQMusic>>() {
+                        @Override
+                        public List<QQMusic> apply(ResponseBody responseBody) throws Exception {
+                            String result = responseBody.string();
+                            if (JSONUtils.isCodeSuccess(result)) {
+                                List<QQMusic> list = new ArrayList<>();
+                                JSONArray array = new JSONObject(result).getJSONObject("data").getJSONArray("list");
+                                if (array != null && array.length() > 0) {
+                                    for (int i = 0; i < array.length(); i++) {
+                                        JSONObject object = array.getJSONObject(i);
+                                        QQMusic song =new QQMusic();
+                                        song.setId(object.getString("songid"));
+                                        song.setMid(object.getString("songmid"));
+                                        song.setName(object.getString("songname"));
+                                        song.setTitle(object.getString("songname"));
+                                        song.setSubtitle(object.getString("songorig"));
+                                        song.setType(object.getString("type"));
+
+                                        JSONArray array1 = array.getJSONObject(i).getJSONArray("singer");
+                                        if (array1 != null && array1.length() > 0) {
+                                            List<QQMuiscSinger> list1 = new ArrayList<>();
+                                            for (int j = 0; j < array1.length(); j++) {
+                                                QQMuiscSinger singer = GsonTool.getInstance().getObject(QQMuiscSinger.class, array1.getJSONObject(j).toString());
+                                                list1.add(singer);
+                                            }
+                                            song.setSingers(list1);
+                                        }
+                                        QQMusicAlbum album = new QQMusicAlbum();
+                                        album.setId(object.getString("albumid"));
+                                        album.setMid(object.getString("albummid"));
+                                        album.setName(object.getString("albumname"));
                                         song.setQqMusicAlbum(album);
                                         list.add(song);
                                     }

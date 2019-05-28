@@ -5,6 +5,12 @@
     <variable
         name="geDan"
         type="com.example.administrator.test.entity.GeDanInfo"/>
+
+    <import type="com.example.administrator.test.utils.StaticBaseInfo" />
+
+    <variable
+        name="isLight"
+        type="Boolean" />
 </data>
     <LinearLayout
         android:id="@+id/rl"
@@ -27,7 +33,7 @@
             android:text="@{geDan.title}"
             android:textSize="@dimen/x6"
             android:layout_alignParentBottom="true"
-            android:textColor="@color/white"
+            android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
             android:layout_marginTop="@dimen/x2"/>
         <TextView
             android:layout_width="match_parent"
@@ -36,7 +42,7 @@
             android:maxLines="1"
             android:text="@{geDan.count}"
             android:textSize="@dimen/x6"
-            android:textColor="@color/white"
+            android:textColor="@{isLight ? StaticBaseInfo.baseColor_dark : StaticBaseInfo.baseColor_light}"
             android:layout_marginTop="@dimen/x2"/>
     </LinearLayout>
 </layout>

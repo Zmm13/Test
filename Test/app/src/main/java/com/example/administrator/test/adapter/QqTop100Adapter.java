@@ -69,7 +69,7 @@ public abstract class QqTop100Adapter extends RecyclerView.Adapter<QqTop100Adapt
     public void onBindViewHolder(QqTop100Adapter.ViewHolder holder, int position) {
         holder.binding.setSong(list.get(position));
         holder.binding.setIsLight(StaticBaseInfo.isLight(context));
-        holder.binding.setIsPlay(MusicListTool.getInstance().playSong == null ? false : (MusicListTool.getInstance().playSong.getPath().contains(list.get(position).getMid())));
+        holder.binding.setIsPlay(MusicListTool.getInstance().playSong == null ? false : (list.get(position).getMid().equals(MusicListTool.getInstance().playSong.getMid())));
         if (position > lastPosition&&lastPosition!=-1) {//这里就是动画的应用
             ItemAnimationTool.loadAnimationUp(holder.binding.getRoot(),context);
         }else if(position < firstPosition&&lastPosition!=-1){

@@ -9,6 +9,7 @@ public class QQMusicFocus {
     private String id;
     private String url;
     private String pic_url;
+    private int type;
 
     public String getId() {
         return id;
@@ -32,5 +33,13 @@ public class QQMusicFocus {
 
     public void setPic_url(String pic_url) {
         this.pic_url = pic_url;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

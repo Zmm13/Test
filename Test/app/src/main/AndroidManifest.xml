@@ -18,8 +18,7 @@
         android:theme="@style/NoTitleTheme">
         <activity
             android:name=".Main2Activity"
-            android:launchMode="singleInstance"
-            android:taskAffinity="">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,7 +50,8 @@
             android:authorities="com.example.administrator.test.provider.myContentProvider"
             android:exported="true" />
 
-        <activity android:name=".MusicPlayShowActivity"></activity>
+        <activity android:name=".MusicPlayShowActivity" />
+        <activity android:name=".MyWebActivity"></activity>
     </application>
 
 </manifest>

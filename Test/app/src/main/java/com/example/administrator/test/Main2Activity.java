@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -28,18 +29,21 @@ import android.widget.Toast;
 
 import com.example.administrator.test.MyView.RippleAnimation;
 import com.example.administrator.test.adapter.FragmentViewPagerAdapter;
+import com.example.administrator.test.base.BaseActivity;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ActivityMainBinding;
 import com.example.administrator.test.event.BufferUpdateEvent;
 import com.example.administrator.test.event.HomeFragmentChangeEvent;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
+import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
 import com.example.administrator.test.service.MusicPlayService;
 import com.example.administrator.test.service.MyTestService;
 import com.example.administrator.test.service.ReceiverService;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.ActivityUtils;
 import com.example.administrator.test.utils.FcoTablayoutTools;
 import com.example.administrator.test.utils.HomeMusicIconRotateTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
@@ -62,9 +66,8 @@ import static android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
 import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 
 
-public class Main2Activity extends AppCompatActivity {
+public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     private FragmentViewPagerAdapter adapter;//主页viewpager适配器
-    private ActivityMainBinding binding;//主页databinding
     private MusicPlayService.MusicPlayBinder musicPlayBinder;//服务绑定数据传递对象
     private boolean isTouchSeekBar = false;//主页seekbar是否触摸
     private Intent intent;//播放音乐服务的intent对象
@@ -72,27 +75,18 @@ public class Main2Activity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        //状态栏暗色图标
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        eventBusEnable = true;
         super.onCreate(savedInstanceState);
-        //必须先透明状态栏再设置状态栏亮色标记，状态栏图标才会变成暗色
-        StatusBarUtils.StatusBarTransport(this);
-        StatusBarUtils.statusBarLightMode(this, StaticBaseInfo.isLight(this) ? SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-        startReceiverService();
-        //初始化view
-        initView();
-//        initStaticService();
-        //初始化数据
-
-
-        initData();
-        //初始化监听
-        initListener();
-        EventBus.getDefault().register(this);
-//        Toast.makeText(Main2Activity.this, new JniUtil().getSomeString(),Toast.LENGTH_SHORT).show();
     }
 
-    private void initView() {
+    @Override
+    protected int setLayout() {
+        return R.layout.activity_main;
+    }
+
+    @Override
+    protected void initView() {
         //利用databinding设置布局文件并初始化databinding对象
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setContext(this);
@@ -100,13 +94,14 @@ public class Main2Activity extends AppCompatActivity {
         //由于是全屏设置线性布局第一个子view与顶部的距离，避免状态栏和页面重合
 //        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.llItem.getLayoutParams();
 //        layoutParams.topMargin = ;
-        binding.llItem.setPadding(0,ScreenUtils.getStatusHeight(this),0,0);
+        binding.llItem.setPadding(0, ScreenUtils.getStatusHeight(this), 0, 0);
 //        binding.llItem.setLayoutParams(layoutParams);
 //        binding.ctl.setTabData(FcoTablayoutTools.getEntities(titles));
 
     }
 
-    private void initData() {
+    @Override
+    protected void initData() {
         //设置viewpage默认第一页
         binding.setSelectedPosition(0);
 //        binding.ctl.setCurrentTab(0);
@@ -164,7 +159,8 @@ public class Main2Activity extends AppCompatActivity {
 
     }
 
-    private void initListener() {
+    @Override
+    protected void initListener() {
         //设置viewpage页面切换监听
         binding.vp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -255,15 +251,7 @@ public class Main2Activity extends AppCompatActivity {
             @SuppressLint("WrongConstant")
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setAction("MY_BROADCAST");
-//                intent.setComponent(new ComponentName(Main2Activity.this,
-//                        "com.example.administrator.test.receiver.MyAutoReceiver"));
-//                if (Build.VERSION.SDK_INT >= 26) {
-//                    intent.addFlags(0x01000000);
-//                }
-//                sendOrderedBroadcast(intent,null);
-                sendBroadcast(intent);
+                ActivityUtils.startActivity(Main2Activity.this, MusicPlayShowActivity.class);
             }
         });
     }
@@ -298,14 +286,14 @@ public class Main2Activity extends AppCompatActivity {
                         public void run() {
                             if (binding.getShowName() == null || !binding.getShowName().equals(song.getName() + "(" + song.singer + ")")) {
                                 binding.setShowName(song.getName() + "(" + song + ")");
-                                if(TextUtil.isEmpty(song.getImageUrl())){
+                                if (TextUtil.isEmpty(song.getImageUrl())) {
                                     Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
                                     if (bitmap != null) {
                                         binding.civ.setImageBitmap(bitmap);
                                     } else {
                                         binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
                                     }
-                                }else {
+                                } else {
                                     Picasso.with(Main2Activity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
                                 }
 
@@ -362,6 +350,7 @@ public class Main2Activity extends AppCompatActivity {
                 bindService(intent, connection, Context.BIND_AUTO_CREATE);
             }
         }
+        System.out.println("onStart");
     }
 
     @Override
@@ -371,14 +360,19 @@ public class Main2Activity extends AppCompatActivity {
             musicPlayBinder.setDoUpdate(false);
         }
         HomeMusicIconRotateTool.rotateView(false, binding.civ);
+        HomeMusicIconRotateTool.objectAnimator = null;
+        musicPlayBinder = null;
+        System.out.println("onStop");
     }
 
     @Override
     protected void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        unbindService(connection);
-        HomeMusicIconRotateTool.objectAnimator = null;
         super.onDestroy();
+        try {
+            unbindService(connection);
+        } catch (Exception e) {
+
+        }
     }
 
 
@@ -443,16 +437,17 @@ public class Main2Activity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(BufferUpdateEvent event) {
-        int i = binding.seekBar.getMax()*event.getPercent()/100;
-        System.out.println("SecondaryProgress:"+i);
-       binding.seekBar.setSecondaryProgress(i);
+        int i = binding.seekBar.getMax() * event.getPercent() / 100;
+        System.out.println("SecondaryProgress:" + i);
+        binding.seekBar.setSecondaryProgress(i);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(HomeFragmentChangeEvent event) {
         int i = event.getToPosition();
-       binding.vp.setCurrentItem(i,false);
+        binding.vp.setCurrentItem(i, false);
     }
+
 
     private void startReceiverService() {
         Intent intent = new Intent();

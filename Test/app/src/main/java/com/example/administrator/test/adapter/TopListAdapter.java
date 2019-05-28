@@ -16,6 +16,7 @@ import com.example.administrator.test.entity.GeDanInfo;
 import com.example.administrator.test.entity.QQTopListInfo;
 import com.example.administrator.test.utils.Res;
 import com.example.administrator.test.utils.ScreenUtils;
+import com.example.administrator.test.utils.StaticBaseInfo;
 
 import java.util.List;
 
@@ -59,6 +60,7 @@ public abstract class TopListAdapter extends RecyclerView.Adapter<TopListAdapter
 
     @Override
     public void onBindViewHolder(ViewHoler holder, int position) {
+        holder.binding.setIsLight(StaticBaseInfo.isLight(context));
         holder.binding.setInfo(list.get(position));
         if (position != 0) {
             layoutParams.setMargins(divider, 0, 0, 0);

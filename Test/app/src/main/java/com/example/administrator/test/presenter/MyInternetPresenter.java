@@ -9,10 +9,12 @@ import com.example.administrator.test.entity.QQTopGroup;
 import com.example.administrator.test.entity.QQTopListInfo;
 import com.example.administrator.test.event.GeDan;
 import com.example.administrator.test.event.GeDanInfoEvent;
+import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.event.QQMusicShouYeInfoEvent;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
 import com.example.administrator.test.event.ShouYeInfo;
+import com.example.administrator.test.minterfcae.QQMusicFocusInterface;
 import com.example.administrator.test.minterfcae.QQMusicSelectGeDanByItemId;
 import com.example.administrator.test.minterfcae.QqCoolMusicInterf;
 import com.example.administrator.test.minterfcae.QqHotMusicInterf;
@@ -83,6 +85,7 @@ public class MyInternetPresenter {
                                 focus.setId(object11.getString("id"));
                                 focus.setUrl(object11.getJSONObject("jump_info").getString("url"));
                                 focus.setPic_url(object11.getJSONObject("pic_info").getString("url"));
+                                focus.setType(object11.getInt("type"));
                                 list.add(focus);
                             }
                             shouYeInfo.setFocusList(list);
@@ -136,6 +139,43 @@ public class MyInternetPresenter {
                 }
             });
         }
+    }
+
+    public void getFocuse10002Info(String id) {
+        QQMusicFocusInterface qqMusicFocusInterface = RetrofitTool.getInstance().get(QQMusicFocusInterface.class, StaticBaseInfo.QQ_MUSIC_FOCUS_BASE_URL, true, false);
+        if (qqMusicFocusInterface != null)
+            qqMusicFocusInterface.getInfos(id)
+                    .map(new Function<ResponseBody, String>() {
+                        @Override
+                        public String apply(ResponseBody responseBody) throws Exception {
+                            String result = responseBody.string();
+                            if (JSONUtils.isCodeSuccess(result)) {
+                                    return result;
+                            }
+                            return null;
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(String s) {
+                                EventBus.getDefault().post(new QQMusicFocuse10002Event(s));
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                        }
+
+                        @Override
+                        public void onComplete() {
+                        }
+                    });
     }
 
     public void getNewMusics() {
