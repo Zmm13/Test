@@ -89,7 +89,7 @@ public class HomeMusicIconRotateTool {
     }
 
     @SuppressLint("WrongConstant")
-    private static void initAnimator(View view) {
+    private  void initAnimator(View view) {
         objectAnimator = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
         objectAnimator.setDuration(15000);
         objectAnimator.setRepeatCount(Animation.INFINITE);

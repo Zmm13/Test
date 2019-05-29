@@ -351,7 +351,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
             }
         } else {
             Picasso.with(MusicPlayShowActivity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
-            Picasso.with(this).load(song.getImageUrl()).transform(new BlurTransformation(this)).into(target);
+            Picasso.with(this).load(Uri.parse(song.getImageUrl())).transform(new BlurTransformation(this)).into(target);
         }
 //                Bitmap bitmap = LocalMusicUtils.getArtwork(context, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
 //                if (bitmap != null) {
