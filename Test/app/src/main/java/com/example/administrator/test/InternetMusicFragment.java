@@ -24,12 +24,14 @@ import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.QQInternetMusicListChangeEvent;
 import com.example.administrator.test.event.QQMusicFocuse10002Event;
+import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
 import com.example.administrator.test.presenter.InternetMusicPresenter;
 import com.example.administrator.test.presenter.MyInternetPresenter;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.StaticBaseInfo;
+import com.example.administrator.test.utils.TextUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -208,6 +210,23 @@ public class InternetMusicFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(QQMusicGetKeyEvent event) {
+        if (TextUtil.isEmpty(event.getKey())) {
+            Toast.makeText(getActivity(), "资源有误，无法播放！", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String path = StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_PLAY + event.getKey();
+        Song song1 = new Song();
+        song1.setPath(path);
+        song1.setSinger(event.getSong().getSingerNames());
+        song1.setName(event.getSong().getTitle());
+        song1.setImageUrl(event.getSong().getSongImagePath());
+        song1.setMid(event.getSong().getMid());
+        song1.setInternet(true);
+        MediaPlayerUtils.getInstance().changeMusic(song1);
     }
 
     @Override

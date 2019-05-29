@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
              */
             musicBinder = ((MyMusicSercive.MusicBinder) service);
             if (musicBinder.isPlayEnd()) {
-                HomeMusicIconRotateTool.rotateView(true, false, binding.civ);
+//                HomeMusicIconRotateTool.rotateView(true, false, binding.civ);
             }
             if (!musicBinder.isPlay()) {
                 musicBinder.playMusic();
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
         //置空动画
-        HomeMusicIconRotateTool.objectAnimator = null;
+//        HomeMusicIconRotateTool.objectAnimator = null;
         if (MusicListTool.getInstance().getPlaySong() != null) {
             SpTool.savePlaySong(this, MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.mediaPlayer.getCurrentPosition());
         }
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void pauseUI() {
         //暂停动画
-        HomeMusicIconRotateTool.pauseAnimator();
+//        HomeMusicIconRotateTool.pauseAnimator();
         //取消绑定
         musicBinder = null;
         try {
@@ -346,22 +346,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setPlayPosition(Song song) {
-        try {
-            if (MediaPlayerUtils.mediaPlayer == null) {
-                initService(song);
-            } else {
-                MediaPlayerUtils.getInstance().setPlayPath(this, song);
-                reflushMusicControlUI();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private void initService(Song song) {
         if (binding.civ.getRotation() != 0) {
-            HomeMusicIconRotateTool.rotateView(true, false, binding.civ);
+//            HomeMusicIconRotateTool.rotateView(true, false, binding.civ);
         }
         intent.putExtra("song", song);
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -418,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
             binding.setDuration(MusicTimeTool.getMusicTime(max));
             binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
         }
-        HomeMusicIconRotateTool.rotateView(false, MediaPlayerUtils.getInstance().isPlaying(), binding.civ);
+//        HomeMusicIconRotateTool.rotateView(false, MediaPlayerUtils.getInstance().isPlaying(), binding.civ);
         initPlayButton(MediaPlayerUtils.getInstance().isPlaying());
         if (MediaPlayerUtils.getInstance().isEnd()) {
             try {

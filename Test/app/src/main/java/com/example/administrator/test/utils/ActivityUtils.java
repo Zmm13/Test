@@ -21,4 +21,14 @@ public class ActivityUtils {
         intent.putExtras(bundle);
         context.startActivity(intent);
     }
+
+    /**
+     * 回到桌面
+     * @param context
+     */
+    public static void goBackHome(Context context){
+        Intent home = new Intent(Intent.ACTION_MAIN);
+        home.addCategory(Intent.CATEGORY_HOME);
+        context.startActivity(home);
+    }
 }

@@ -71,7 +71,9 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     private MusicPlayService.MusicPlayBinder musicPlayBinder;//服务绑定数据传递对象
     private boolean isTouchSeekBar = false;//主页seekbar是否触摸
     private Intent intent;//播放音乐服务的intent对象
+    private HomeMusicIconRotateTool homeMusicIconRotateTool;
 //    private String[] titles = new String[]{"发现","音乐","本地","设置"};
+    private boolean firstInitService = false;
 
 
     @Override
@@ -120,43 +122,8 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         intent.setClass(this, MusicPlayService.class);
 
         //初始化界面
-        if (MediaPlayerUtils.mediaPlayer != null && MusicListTool.getInstance().getPlaySong() != null) {
-            if (binding.getShowName() == null || !binding.getShowName().equals(MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong().singer + ")")) {
-                binding.setShowName(MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong() + ")");
-                Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
-                if (bitmap != null) {
-                    binding.civ.setImageBitmap(bitmap);
-                } else {
-                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-                }
-            }
-            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
-            binding.setShowName(MusicListTool.getInstance().getPlaySong().name + "(" + MusicListTool.getInstance().getPlaySong().singer + ")");
-            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
-            binding.seekBar.setMax(MusicListTool.getInstance().getPlaySong().duration);
-            binding.setDuration(MusicTimeTool.getMusicTime(MusicListTool.getInstance().getPlaySong().duration));
-            if (!isTouchSeekBar) {
-                binding.seekBar.setProgress(MediaPlayerUtils.getInstance().getProgress());
-                binding.setProgressTime(MusicTimeTool.getMusicTime(MediaPlayerUtils.getInstance().getProgress()));
-            }
-        }
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Intent intent = new Intent(Main2Activity.this, MyTestService.class);
-//                bindService(intent, connectiontest, Context.BIND_AUTO_CREATE);
-//                startService(intent);
-//                try {
-//                    Thread.sleep(5000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//                unbindService(connectiontest);
-//                stopService(intent);
-//            }
-//        }).start();
-
+        initPlayUI();
+        homeMusicIconRotateTool = new HomeMusicIconRotateTool();
     }
 
     @Override
@@ -223,12 +190,12 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
                 }
                 if (musicPlayBinder != null) {
                     if (musicPlayBinder.isPlay()) {
-                        musicPlayBinder.pause();
+                        musicPlayBinder.pause(Main2Activity.this);
                         binding.ivPlay.setSelected(false);
-                        HomeMusicIconRotateTool.rotateView(false, binding.civ);
+                        homeMusicIconRotateTool.rotateView(false, binding.civ);
                     } else {
-                        musicPlayBinder.play(Main2Activity.this);
-                        musicPlayBinder.doRefulsh();
+                        musicPlayBinder.play(Main2Activity.this, Main2Activity.this);
+//                        musicPlayBinder.doRefulsh();
                     }
                 } else {
                     initService();
@@ -251,6 +218,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
             @SuppressLint("WrongConstant")
             @Override
             public void onClick(View view) {
+
                 ActivityUtils.startActivity(Main2Activity.this, MusicPlayShowActivity.class);
             }
         });
@@ -264,7 +232,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             // TODO Auto-generated method stub
-            musicPlayBinder.setDoUpdate(false);
+            musicPlayBinder.removeUpdateListener(Main2Activity.this);
             musicPlayBinder = null;
         }
 
@@ -278,42 +246,15 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
              * 调用DownLoadBinder的方法实现参数的传递
              */
             musicPlayBinder = (MusicPlayService.MusicPlayBinder) service;
-            musicPlayBinder.setUpdateListener(new MusiPlaycUpdateInterface() {
-                @Override
-                public void update(Song song, int progress, int duration) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (binding.getShowName() == null || !binding.getShowName().equals(song.getName() + "(" + song.singer + ")")) {
-                                binding.setShowName(song.getName() + "(" + song + ")");
-                                if (TextUtil.isEmpty(song.getImageUrl())) {
-                                    Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
-                                    if (bitmap != null) {
-                                        binding.civ.setImageBitmap(bitmap);
-                                    } else {
-                                        binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-                                    }
-                                } else {
-                                    Picasso.with(Main2Activity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
-                                }
-
-                            }
-                            binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                            binding.setShowName(song.getName() + "(" + song.singer + ")");
-                            binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                            binding.seekBar.setMax(duration);
-                            binding.setDuration(MusicTimeTool.getMusicTime(duration));
-                            if (!isTouchSeekBar) {
-                                binding.seekBar.setProgress(progress);
-                                binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
-                            }
-                            HomeMusicIconRotateTool.rotateView(musicPlayBinder.isPlay(), binding.civ);
-                        }
-                    });
-                }
-            });
             if (musicPlayBinder.isPlay()) {
-                musicPlayBinder.doRefulsh();
+                musicPlayBinder.removeUpdateListener(Main2Activity.this);
+                musicPlayBinder.addUpdateListener(Main2Activity.this);
+//                musicPlayBinder.play(context,Main2Activity.this);
+            }
+            if(firstInitService){
+                musicPlayBinder.removeUpdateListener(Main2Activity.this);
+                musicPlayBinder.play(context,Main2Activity.this);
+                firstInitService = false;
             }
         }
     };
@@ -343,11 +284,14 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     @Override
     protected void onStart() {
         super.onStart();
+        initPlayUI();
         if (MediaPlayerUtils.getInstance().isPlaying()) {
             if (musicPlayBinder != null) {
-                musicPlayBinder.doRefulsh();
+                musicPlayBinder.removeUpdateListener(this);
+                musicPlayBinder.addUpdateListener(this);
             } else {
                 bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                firstInitService = true;
             }
         }
         System.out.println("onStart");
@@ -357,11 +301,9 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     protected void onStop() {
         super.onStop();
         if (musicPlayBinder != null && musicPlayBinder.isPlay()) {
-            musicPlayBinder.setDoUpdate(false);
+            musicPlayBinder.removeUpdateListener(Main2Activity.this);
         }
-        HomeMusicIconRotateTool.rotateView(false, binding.civ);
-        HomeMusicIconRotateTool.objectAnimator = null;
-        musicPlayBinder = null;
+        homeMusicIconRotateTool.rotateView(false, binding.civ);
         System.out.println("onStop");
     }
 
@@ -394,6 +336,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
                         startService(intent);
                     }
                     bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                    firstInitService = true;
                 }
                 break;
             case StaticBaseInfo.MAINACTIVITY_REQUEST_CODE_READ_EXTERNAL_STORAGE:
@@ -417,6 +360,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
             //绑定服务更新ui
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
         }
+        firstInitService = true;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -427,9 +371,10 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MusicChangeEvent event) {
         if (musicPlayBinder != null) {
-            musicPlayBinder.setDoUpdate(false);
-            musicPlayBinder.play(Main2Activity.this);
-            musicPlayBinder.doRefulsh();
+            if (ActivityManager.getManager().isTop(this)) {
+                musicPlayBinder.removeUpdateListener(Main2Activity.this);
+                musicPlayBinder.play(Main2Activity.this, Main2Activity.this);
+            }
         } else {
             initService();
         }
@@ -467,4 +412,75 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         sendBroadcast(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        ActivityUtils.goBackHome(context);
+    }
+
+    @Override
+    public void update(Song song, int progress, int duration) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (binding.getShowName() == null || !binding.getShowName().equals(song.getName() + "(" + song.singer + ")")) {
+                    binding.setShowName(song.getName() + "(" + song + ")");
+                    if (!song.isInternet()||TextUtil.isEmpty(song.getImageUrl())) {
+                        Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
+                        if (bitmap != null) {
+                            binding.civ.setImageBitmap(bitmap);
+                        } else {
+                            binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
+                        }
+                    } else {
+                        Picasso.with(Main2Activity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
+                    }
+
+                }
+                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
+                binding.setShowName(song.getName() + "(" + song.singer + ")");
+                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
+                binding.seekBar.setMax(duration);
+                binding.setDuration(MusicTimeTool.getMusicTime(duration));
+                if (!isTouchSeekBar) {
+                    binding.seekBar.setProgress(progress);
+                    binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
+                }
+                homeMusicIconRotateTool.rotateView(musicPlayBinder.isPlay(), binding.civ);
+            }
+        });
+    }
+
+    private void initPlayUI() {
+        if (MediaPlayerUtils.mediaPlayer != null && MusicListTool.getInstance().getPlaySong() != null) {
+            if (binding.getShowName() == null || !binding.getShowName().equals(MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong().singer + ")")) {
+                binding.setShowName(MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong() + ")");
+//                Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
+//                if (bitmap != null) {
+//                    binding.civ.setImageBitmap(bitmap);
+//                } else {
+//                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
+//                }
+                if (!MusicListTool.getInstance().getPlaySong().isInternet()||TextUtil.isEmpty(MusicListTool.getInstance().getPlaySong().getImageUrl())) {
+                    Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
+                    if (bitmap != null) {
+                        binding.civ.setImageBitmap(bitmap);
+                    } else {
+                        binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
+                    }
+                } else {
+                    Picasso.with(Main2Activity.this).load(Uri.parse(MusicListTool.getInstance().getPlaySong().getImageUrl())).into(binding.civ);
+                }
+            }
+            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
+            binding.setShowName(MusicListTool.getInstance().getPlaySong().name + "(" + MusicListTool.getInstance().getPlaySong().singer + ")");
+            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
+            binding.seekBar.setMax(MusicListTool.getInstance().getPlaySong().duration);
+            binding.setDuration(MusicTimeTool.getMusicTime(MusicListTool.getInstance().getPlaySong().duration));
+            if (!isTouchSeekBar) {
+                binding.seekBar.setProgress(MediaPlayerUtils.getInstance().getProgress());
+                binding.setProgressTime(MusicTimeTool.getMusicTime(MediaPlayerUtils.getInstance().getProgress()));
+            }
+        }
+    }
 }

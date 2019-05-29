@@ -239,21 +239,6 @@ public class MyInternetFragment extends Fragment {
         geDanAdapter.notifyDataSetChanged();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(QQMusicGetKeyEvent event) {
-        if (TextUtil.isEmpty(event.getKey())) {
-            Toast.makeText(getActivity(), "资源有误，无法播放！", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String path = StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_PLAY + event.getKey();
-        Song song1 = new Song();
-        song1.setPath(path);
-        song1.setSinger(event.getSong().getSingerNames());
-        song1.setName(event.getSong().getTitle());
-        song1.setImageUrl(event.getSong().getSongImagePath());
-        song1.setMid(event.getSong().getMid());
-        MediaPlayerUtils.getInstance().changeMusic(song1);
-    }
 
     @Override
     public void onResume() {
@@ -273,17 +258,11 @@ public class MyInternetFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-//        binding.bannerGuideContent.setAutoPlayAble(false);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-    }
-
-
-    private void selectSong(QQMusic song) {
-        presenter.getMusicInfo(song);
     }
 }

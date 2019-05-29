@@ -17,6 +17,9 @@ import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Create by zmm
  * Time 2019/5/10
@@ -67,55 +70,87 @@ public class MusicPlayService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+       if(MediaPlayerUtils.mediaPlayer!=null){
+           MediaPlayerUtils.mediaPlayer.release();
+       }
     }
 
     public class MusicPlayBinder extends Binder {
-        MusiPlaycUpdateInterface musiPlaycUpdateInterface;
-        long duration = 200;
-        boolean doUpdate = false;
+        List<MusiPlaycUpdateInterface> musiPlaycUpdateInterfaces;
+        long duration = 100;
+        boolean isUpdate = false;
 
         public MusicPlayBinder setDuration(long duration) {
             this.duration = duration;
             return this;
         }
 
-        public void setDoUpdate(boolean doUpdate) {
-            this.doUpdate = doUpdate;
-        }
+//        public void stopUpdate() {
+//            this.doUpdate = false;
+//        }
 
-        public void pause() {
+        public void pause(MusiPlaycUpdateInterface musiPlaycUpdateInterface) {
             MediaPlayerUtils.getInstance().pauseMusic();
-            setDoUpdate(false);
+            removeUpdateListener(musiPlaycUpdateInterface);
         }
 
-        public void play(Context context) {
+        public void play(Context context, MusiPlaycUpdateInterface musiPlaycUpdateInterface) {
             MediaPlayerUtils.getInstance().playMusic(context);
+            addUpdateListener(musiPlaycUpdateInterface);
         }
 
         public boolean isPlay() {
             return MediaPlayerUtils.getInstance().isPlaying();
         }
 
-        public MusicPlayBinder setUpdateListener(MusiPlaycUpdateInterface musiPlaycUpdateInterface) {
-            this.musiPlaycUpdateInterface = musiPlaycUpdateInterface;
+        public MusicPlayBinder addUpdateListener(MusiPlaycUpdateInterface musiPlaycUpdateInterface) {
+            if (musiPlaycUpdateInterfaces == null) {
+                musiPlaycUpdateInterfaces = new ArrayList<>();
+            }
+            boolean b = false;
+            if (musiPlaycUpdateInterfaces.size() == 0) {
+                b = true;
+            }
+            if (!musiPlaycUpdateInterfaces.contains(musiPlaycUpdateInterface)) {
+                musiPlaycUpdateInterfaces.add(musiPlaycUpdateInterface);
+            }
+            if (b) {
+                doRefulsh();
+            }
+            return this;
+        }
+
+        public MusicPlayBinder removeUpdateListener(MusiPlaycUpdateInterface musiPlaycUpdateInterface) {
+            if (musiPlaycUpdateInterfaces != null && musiPlaycUpdateInterfaces.size() > 0 && musiPlaycUpdateInterfaces.contains(musiPlaycUpdateInterface)) {
+                musiPlaycUpdateInterfaces.remove(musiPlaycUpdateInterface);
+            }
             return this;
         }
 
         public void doRefulsh() {
-            System.out.println("刷新开始");
+            if (isUpdate) {
+                return;
+            }
+            isUpdate = true;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    doUpdate = true;
-                    while (doUpdate) {
+                    while (true) {
                         try {
-                            musiPlaycUpdateInterface.update(MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.getInstance().getProgress(), MediaPlayerUtils.getInstance().getDuration());
-                            System.out.println("刷新");
-                            Thread.sleep(duration);
+                            if (musiPlaycUpdateInterfaces != null && musiPlaycUpdateInterfaces.size() > 0) {
+                                for (MusiPlaycUpdateInterface musiPlaycUpdateInterface : musiPlaycUpdateInterfaces) {
+                                    musiPlaycUpdateInterface.update(MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.getInstance().getProgress(), MediaPlayerUtils.getInstance().getDuration());
+//                                    System.out.println("刷新:" + "thread:" + Thread.currentThread().getId() + "////" + musiPlaycUpdateInterface.getClass().getName());
+                                }
+                                Thread.sleep(duration);
+                            } else {
+                                break;
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
+                    isUpdate = false;
                 }
             }).start();
         }

@@ -37,6 +37,16 @@ public class Song implements Parcelable {
     private String imageUrl;
     @Transient
     private String mid;
+    @Transient
+    private boolean isInternet = false;
+
+    public boolean isInternet() {
+        return isInternet;
+    }
+
+    public void setInternet(boolean internet) {
+        isInternet = internet;
+    }
 
     public String getMid() {
         return mid;

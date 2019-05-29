@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.RelativeLayout;
 
 import com.example.administrator.test.base.BaseActivity;
+import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ActivityMyWebBinding;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.utils.ScreenUtils;
@@ -67,5 +68,10 @@ public class MyWebActivity extends BaseActivity<ActivityMyWebBinding> {
         agentWeb.clearWebCache();
         agentWeb.destroy();
         super.onDestroy();
+    }
+
+    @Override
+    public void update(Song song, int progress, int duration) {
+
     }
 }

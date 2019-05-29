@@ -69,10 +69,11 @@ public class MediaPlayerUtils {
         try {
             if (isEnd) {
                 initMediaPlayer(context,false);
+            }else {
+                mediaPlayer.start();
+                isEnd = false;
+                System.out.println("play");
             }
-            mediaPlayer.start();
-            isEnd = false;
-            System.out.println("play");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,32 +107,31 @@ public class MediaPlayerUtils {
         }
     }
 
-    public void initMediaPlayer(Context context,boolean loop) {
+    public  synchronized void initMediaPlayer(Context context,boolean loop) {
         try {
+            System.out.println("initMediaPlayer");
             pauseProgress = -1;
             resetMusic();
             if(MusicListTool.getInstance().getPlaySong() == null ){
                 MusicListTool.getInstance().setPlaySong(MusicListTool.getInstance().getList(context).get(0));
             }
-            if(MusicListTool.getInstance().getPlaySong().getPath().contains("http")){
+            if(MusicListTool.getInstance().getPlaySong().isInternet()){
             mediaPlayer.setDataSource(context,Uri.parse(MusicListTool.getInstance().getPlaySong().getPath()));
             }else {
                 File file = new File(MusicListTool.getInstance().getPlaySong().getPath());
                 mediaPlayer.setDataSource(file.getPath());//指定音频文件路径
             }
             mediaPlayer.setLooping(loop);//设置为循环播放
-            mediaPlayer.prepare();//初始化播放器MediaPlayer
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     isEnd = true;
-                    if(MusicListTool.getInstance().getPlaySong().getPath().contains("http")){
+                    if(MusicListTool.getInstance().getPlaySong().isInternet()){
                         EventBus.getDefault().post(new EventInternetMusicEnd());
                     }else {
                         Long position = MusicListTool.getInstance().getPlaySong().getId();
                         Long next = (position + 1) < MusicListTool.getInstance().getList(context).size() ? (position) : 0;
                         MusicListTool.getInstance().setPlaySong(MusicListTool.getInstance().getList(context).get((int) next.longValue()));
-                        playMusic(context);
                     }
                 }
             });
@@ -140,7 +140,6 @@ public class MediaPlayerUtils {
                 public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
                     resetMusic();
                     isEnd = true;
-                    mediaPlayer.stop();
                     Toast.makeText(context,"资源不可用，播放失败！",Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -151,8 +150,18 @@ public class MediaPlayerUtils {
                     EventBus.getDefault().post(new BufferUpdateEvent(i));
                 }
             });
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    mediaPlayer.start();
+                    isEnd = false;
+                    System.out.println("play");
+                }
+            });
+            mediaPlayer.prepare();//初始化播放器MediaPlayer
         } catch (Exception e) {
             e.printStackTrace();
+            initMediaPlayer(context,loop);
         }
     }
 
@@ -160,13 +169,4 @@ public class MediaPlayerUtils {
          isEnd = true;
          MusicListTool.getInstance().setPlaySong(song);
     }
-
-    public  void setPlayPath(Context context,Song song) {
-        if(MusicListTool.getInstance().getPlaySong() == null || song.getId().longValue() != MusicListTool.getInstance().getPlaySong().getId().longValue()){
-            MusicListTool.getInstance().setPlaySong(song);
-            isEnd = true;
-            playMusic(context);
-        }
-    }
-
 }

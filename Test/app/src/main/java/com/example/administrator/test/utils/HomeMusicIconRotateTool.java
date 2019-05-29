@@ -14,11 +14,10 @@ import android.view.animation.LinearInterpolator;
  */
 public class HomeMusicIconRotateTool {
 
-    public static ObjectAnimator objectAnimator = null;
+    public  ObjectAnimator objectAnimator = null;
 
-    public static boolean isRotate = false;
 
-    public static void rotateView(boolean isRotate, View view) {
+    public  void rotateView(boolean isRotate, View view) {
         if (objectAnimator == null) {
             initAnimator(view);
         }
@@ -45,7 +44,7 @@ public class HomeMusicIconRotateTool {
         }
     }
 
-    public static void rotateView(boolean reset, boolean isPlay, View view) {
+    public  void rotateView(boolean reset, boolean isPlay, View view) {
         if (reset) {
             objectAnimator = null;
             view.setRotation(0);
@@ -79,7 +78,7 @@ public class HomeMusicIconRotateTool {
         }
     }
 
-    public static void pauseAnimator() {
+    public  void pauseAnimator() {
         if (objectAnimator != null && objectAnimator.isRunning()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 objectAnimator.pause();

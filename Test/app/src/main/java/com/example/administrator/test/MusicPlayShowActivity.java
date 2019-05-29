@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.example.administrator.test.MyView.BlurTransformation;
 import com.example.administrator.test.base.BaseActivity;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ActivityMusicPlayShowBinding;
@@ -30,6 +33,8 @@ import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
 import com.example.administrator.test.service.MusicPlayService;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.ActivityUtils;
+import com.example.administrator.test.utils.BitmapTool;
 import com.example.administrator.test.utils.HomeMusicIconRotateTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
 import com.example.administrator.test.utils.MusicTimeTool;
@@ -37,15 +42,22 @@ import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
 
 public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBinding> {
 
     private MusicPlayService.MusicPlayBinder musicPlayBinder;//服务绑定数据传递对象
     private boolean isTouchSeekBar = false;//主页seekbar是否触摸
     private Intent intent;//播放音乐服务的intent对象
+    private HomeMusicIconRotateTool homeMusicIconRotateTool;//播放音乐服务的intent对象
+    private boolean changePic = true;
+    private boolean firstInitService = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +73,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
     @Override
     protected void initView() {
         binding.llMain.setPadding(0, ScreenUtils.getStatusHeight(context), 0, 0);
+        binding.setIsLight(StaticBaseInfo.isLight(this));
     }
 
     @Override
@@ -72,12 +85,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
             if (binding.getSongName() == null || !binding.getSongName().equals(MusicListTool.getInstance().getPlaySong().getName())) {
                 binding.setSongName(MusicListTool.getInstance().getPlaySong().getName());
                 binding.setSinger(MusicListTool.getInstance().getPlaySong().singer);
-                Bitmap bitmap = LocalMusicUtils.getArtwork(context, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
-                if (bitmap != null) {
-                    binding.civ.setImageBitmap(bitmap);
-                } else {
-                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-                }
+                setPic(MusicListTool.getInstance().getPlaySong());
             }
             binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
             binding.setSongName(MusicListTool.getInstance().getPlaySong().name);
@@ -90,6 +98,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 binding.setProgressTime(MusicTimeTool.getMusicTime(MediaPlayerUtils.getInstance().getProgress()));
             }
         }
+        homeMusicIconRotateTool = new HomeMusicIconRotateTool();
     }
 
     @Override
@@ -129,16 +138,21 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 }
                 if (musicPlayBinder != null) {
                     if (musicPlayBinder.isPlay()) {
-                        musicPlayBinder.pause();
+                        musicPlayBinder.pause(MusicPlayShowActivity.this);
                         binding.ivPlay.setSelected(false);
-                        HomeMusicIconRotateTool.rotateView(false, binding.civ);
+                        homeMusicIconRotateTool.rotateView(false, binding.civ);
                     } else {
-                        musicPlayBinder.play(MusicPlayShowActivity.this);
-                        musicPlayBinder.doRefulsh();
+                        musicPlayBinder.play(MusicPlayShowActivity.this, MusicPlayShowActivity.this);
                     }
                 } else {
                     initService();
                 }
+            }
+        });
+        binding.ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }
@@ -151,7 +165,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
         @Override
         public void onServiceDisconnected(ComponentName name) {
             // TODO Auto-generated method stub
-            musicPlayBinder.setDoUpdate(false);
+            musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
             musicPlayBinder = null;
         }
 
@@ -165,44 +179,15 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
              * 调用DownLoadBinder的方法实现参数的传递
              */
             musicPlayBinder = (MusicPlayService.MusicPlayBinder) service;
-            musicPlayBinder.setUpdateListener(new MusiPlaycUpdateInterface() {
-                @Override
-                public void update(Song song, int progress, int duration) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (binding.getSongName() == null || !binding.getSongName().equals(song.getName())) {
-                                binding.setSongName(song.getName());
-                                binding.setSinger(song.singer);
-                                if (TextUtil.isEmpty(song.getImageUrl())) {
-                                    Bitmap bitmap = LocalMusicUtils.getArtwork(MusicPlayShowActivity.this, song.getKey(), song.getAlbumId(), true, false);
-                                    if (bitmap != null) {
-                                        binding.civ.setImageBitmap(bitmap);
-                                    } else {
-                                        binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-                                    }
-                                } else {
-                                    Picasso.with(MusicPlayShowActivity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
-                                }
-
-                            }
-                            binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                            binding.setSongName(song.getName());
-                            binding.setSinger(song.singer);
-                            binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                            binding.seekBar.setMax(duration);
-                            binding.setDuration(MusicTimeTool.getMusicTime(duration));
-                            if (!isTouchSeekBar) {
-                                binding.seekBar.setProgress(progress);
-                                binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
-                            }
-                            HomeMusicIconRotateTool.rotateView(musicPlayBinder.isPlay(), binding.civ);
-                        }
-                    });
-                }
-            });
             if (musicPlayBinder.isPlay()) {
-                musicPlayBinder.doRefulsh();
+                musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
+                musicPlayBinder.addUpdateListener(MusicPlayShowActivity.this);
+//                musicPlayBinder.play(context,MusicPlayShowActivity.this);
+            }
+            if(firstInitService){
+                musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
+                musicPlayBinder.play(context,MusicPlayShowActivity.this);
+                firstInitService = false;
             }
         }
     };
@@ -212,9 +197,11 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
         super.onStart();
         if (MediaPlayerUtils.getInstance().isPlaying()) {
             if (musicPlayBinder != null) {
-                musicPlayBinder.doRefulsh();
+                musicPlayBinder.removeUpdateListener(this);
+                musicPlayBinder.addUpdateListener(this);
             } else {
                 bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                firstInitService = true;
             }
         }
     }
@@ -223,11 +210,9 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
     protected void onStop() {
         super.onStop();
         if (musicPlayBinder != null && musicPlayBinder.isPlay()) {
-            musicPlayBinder.setDoUpdate(false);
+            musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
         }
-        HomeMusicIconRotateTool.rotateView(false, binding.civ);
-        HomeMusicIconRotateTool.objectAnimator = null;
-        musicPlayBinder = null;
+        homeMusicIconRotateTool.rotateView(false, binding.civ);
         System.out.println("onStop22222222");
     }
 
@@ -237,9 +222,8 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
         try {
             unbindService(connection);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-
     }
 
     private void initService() {
@@ -254,6 +238,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
             }
             //绑定服务更新ui
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
+            firstInitService = true;
         }
     }
 
@@ -275,6 +260,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                         startService(intent);
                     }
                     bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                    firstInitService = true;
                 }
                 break;
             case StaticBaseInfo.MAINACTIVITY_REQUEST_CODE_READ_EXTERNAL_STORAGE:
@@ -292,10 +278,12 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MusicChangeEvent event) {
+        changePic = true;
         if (musicPlayBinder != null) {
-            musicPlayBinder.setDoUpdate(false);
-            musicPlayBinder.play(context);
-            musicPlayBinder.doRefulsh();
+            if (ActivityManager.getManager().isTop(this)) {
+                musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
+                musicPlayBinder.play(MusicPlayShowActivity.this, MusicPlayShowActivity.this);
+            }
         } else {
             initService();
         }
@@ -308,4 +296,68 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
         binding.seekBar.setSecondaryProgress(i);
     }
 
+    @Override
+    public void update(Song song, int progress, int duration) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setPic(song);
+                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
+                binding.setSongName(song.getName());
+                binding.setSinger(song.singer);
+                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
+                binding.seekBar.setMax(duration);
+                binding.setDuration(MusicTimeTool.getMusicTime(duration));
+                if (!isTouchSeekBar) {
+                    binding.seekBar.setProgress(progress);
+                    binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
+                }
+                homeMusicIconRotateTool.rotateView(musicPlayBinder.isPlay(), binding.civ);
+            }
+        });
+    }
+
+    private void setPic(Song song) {
+        if (!changePic) {
+            return;
+        }
+        changePic = false;
+        Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    binding.llMain.setBackground(new BitmapDrawable(bitmap));
+                }
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        };
+        if (!song.isInternet()||TextUtil.isEmpty(song.getImageUrl())) {
+            Bitmap bitmap = LocalMusicUtils.getArtwork(MusicPlayShowActivity.this, song.getKey(), song.getAlbumId(), true, false);
+            if (bitmap != null) {
+                binding.civ.setImageBitmap(bitmap);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    binding.llMain.setBackground(new BitmapDrawable(getResources(), BitmapTool.toMoHu(bitmap,context)));
+                }
+            } else {
+                Picasso.with(this).load(R.drawable.girl_icon).into(binding.civ);
+                Picasso.with(this).load(R.drawable.girl_icon).transform(new BlurTransformation(this)).into(target);
+            }
+        } else {
+            Picasso.with(MusicPlayShowActivity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
+            Picasso.with(this).load(song.getImageUrl()).transform(new BlurTransformation(this)).into(target);
+        }
+//                Bitmap bitmap = LocalMusicUtils.getArtwork(context, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
+//                if (bitmap != null) {
+//                    binding.civ.setImageBitmap(bitmap);
+//                } else {
+//                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
+//                }
+    }
 }
