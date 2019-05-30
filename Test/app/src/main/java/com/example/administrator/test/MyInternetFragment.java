@@ -107,7 +107,7 @@ public class MyInternetFragment extends Fragment {
                 EventBus.getDefault().post(new QQInternetMusicListChangeEvent(qqTopListInfos.get(position)));
             }
         };
-        geDanAdapter = new GeDanAdapter(getActivity(),geDanInfos,binding.mrvGedan);
+        geDanAdapter = new GeDanAdapter(getActivity(), geDanInfos, binding.mrvGedan);
         binding.mrvTopList.setAdapter(topListAdapter);
         binding.mrvGedan.setAdapter(geDanAdapter);
         binding.ctlTopList.setOnTabSelectListener(new OnTabSelectListener() {
@@ -188,9 +188,14 @@ public class MyInternetFragment extends Fragment {
                                     EventBus.getDefault().post(new HomeFragmentChangeEvent(1));
                                     EventBus.getDefault().post(new QQMusicFocuse10002Event(event.shouYeInfo.getFocusList().get(position).getUrl()));
                                     break;
+                                case StaticBaseInfo.QQ_MUSIC_FOCUSE_TYPE_3002:
+                                    Bundle bundle =new Bundle();
+                                    bundle.putString("path",event.shouYeInfo.getFocusList().get(position).getUrl());
+                                    ActivityUtils.startActivity(getActivity(), MyWebActivity.class,bundle);
+                                    break;
                                 default:
                                     Toast.makeText(getActivity(), "type:" + type + "\n" + event.shouYeInfo.getFocusList().get(position).getUrl(), Toast.LENGTH_SHORT).show();
-                                    ActivityUtils.startActivity(getActivity(), MyWebActivity.class);
+//                                    ActivityUtils.startActivity(getActivity(), MyWebActivity.class);
                                     break;
                             }
                         }

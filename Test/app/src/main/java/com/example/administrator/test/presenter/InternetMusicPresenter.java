@@ -3,9 +3,12 @@ package com.example.administrator.test.presenter;
 import com.example.administrator.test.entity.QQMuiscSinger;
 import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.entity.QQMusicAlbum;
+import com.example.administrator.test.event.QQGeCiEvent;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
+import com.example.administrator.test.minterfcae.QQGeCi;
 import com.example.administrator.test.minterfcae.QQMusicFocusInterface;
+import com.example.administrator.test.minterfcae.QQMusicUrlInterface;
 import com.example.administrator.test.minterfcae.QqCoolMusicInterf;
 import com.example.administrator.test.minterfcae.QqMusicListInterf;
 import com.example.administrator.test.minterfcae.QqNewMusicTop100GetKeyInterf;
@@ -56,6 +59,43 @@ public class InternetMusicPresenter  {
                             String s = responseBody.string();
                             String key = new JSONObject(s).getJSONObject("req_0").getJSONObject("data").getJSONArray("midurlinfo").getJSONObject(0).getString("purl");
                             return key;
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(String s) {
+                            EventBus.getDefault().post(new QQMusicGetKeyEvent(s, song));
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        }
+    }
+
+    public void getMusicUrl(QQMusic song) {
+        QQMusicUrlInterface qqNewMusicTop100GetKeyInterf = RetrofitTool.getInstance().get(QQMusicUrlInterface.class, StaticBaseInfo.OTHER_BASE_URL, true, false);
+        if (qqNewMusicTop100GetKeyInterf != null) {
+            qqNewMusicTop100GetKeyInterf.getInfos(song.getMid(),"flac","1")
+                    .map(new Function<ResponseBody, String>() {
+                        @Override
+                        public String apply(ResponseBody responseBody) throws Exception {
+                            String s = responseBody.string();
+                            return s;
                         }
                     })
                     .subscribeOn(Schedulers.io())

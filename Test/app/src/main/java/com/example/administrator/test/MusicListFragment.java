@@ -83,8 +83,9 @@ public class MusicListFragment extends Fragment {
         adapter = new MusicListAdapter(context, list) {
             @Override
             protected void onItemClick(Song song) {
-                MediaPlayerUtils.getInstance().changeMusic(song);
-                EventBus.getDefault().post(new MusicChangeEvent());
+                if(MusicListTool.getInstance().getPlaySong() == null || (!song.getPath().equals(MusicListTool.getInstance().getPlaySong().getPath()))){
+                    MediaPlayerUtils.getInstance().changeMusic(song);
+                }
             }
         };
         binding.rv.setAdapter(adapter);
@@ -177,8 +178,10 @@ public class MusicListFragment extends Fragment {
                 if (playSong != null&& playSong.getId()!=null){
                     adapter.notifyItemChanged(playSong.getId().intValue() - 1);
                 }
-                if(MusicListTool.getInstance().getPlaySong().getId()!=null){
-                    adapter.notifyItemChanged(MusicListTool.getInstance().getPlaySong().getId().intValue() - 1);
+                if(!MusicListTool.getInstance().getPlaySong().isInternet()){
+                    if( MusicListTool.getInstance().getPlaySong().getId()!=null){
+                        adapter.notifyItemChanged(MusicListTool.getInstance().getPlaySong().getId().intValue() - 1);
+                    }
                 }
             }
             playSong = MusicListTool.getInstance().getPlaySong();

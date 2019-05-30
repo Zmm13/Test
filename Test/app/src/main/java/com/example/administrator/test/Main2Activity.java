@@ -10,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.administrator.test.MyView.BlurTransformation;
 import com.example.administrator.test.MyView.RippleAnimation;
 import com.example.administrator.test.adapter.FragmentViewPagerAdapter;
 import com.example.administrator.test.base.BaseActivity;
@@ -35,6 +38,7 @@ import com.example.administrator.test.databinding.ActivityMainBinding;
 import com.example.administrator.test.event.BufferUpdateEvent;
 import com.example.administrator.test.event.HomeFragmentChangeEvent;
 import com.example.administrator.test.event.IsLightChangeEvent;
+import com.example.administrator.test.event.MediaPlayerEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
@@ -44,6 +48,7 @@ import com.example.administrator.test.service.ReceiverService;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
 import com.example.administrator.test.utils.ActivityUtils;
+import com.example.administrator.test.utils.BitmapTool;
 import com.example.administrator.test.utils.FcoTablayoutTools;
 import com.example.administrator.test.utils.HomeMusicIconRotateTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
@@ -55,6 +60,7 @@ import com.example.administrator.test.utils.TextUtil;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -94,11 +100,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         binding.setContext(this);
         binding.setIsLight(StaticBaseInfo.isLight(this));
         //由于是全屏设置线性布局第一个子view与顶部的距离，避免状态栏和页面重合
-//        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.llItem.getLayoutParams();
-//        layoutParams.topMargin = ;
         binding.llItem.setPadding(0, ScreenUtils.getStatusHeight(this), 0, 0);
-//        binding.llItem.setLayoutParams(layoutParams);
-//        binding.ctl.setTabData(FcoTablayoutTools.getEntities(titles));
 
     }
 
@@ -122,7 +124,6 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         intent.setClass(this, MusicPlayService.class);
 
         //初始化界面
-        initPlayUI();
         homeMusicIconRotateTool = new HomeMusicIconRotateTool();
     }
 
@@ -191,11 +192,8 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
                 if (musicPlayBinder != null) {
                     if (musicPlayBinder.isPlay()) {
                         musicPlayBinder.pause(Main2Activity.this);
-                        binding.ivPlay.setSelected(false);
-                        homeMusicIconRotateTool.rotateView(false, binding.civ);
                     } else {
                         musicPlayBinder.play(Main2Activity.this, Main2Activity.this);
-//                        musicPlayBinder.doRefulsh();
                     }
                 } else {
                     initService();
@@ -260,31 +258,9 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     };
 
 
-    private ServiceConnection connectiontest = new ServiceConnection() {
-        /**
-         * 服务解除绑定时候调用
-         */
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            // TODO Auto-generated method stub
-            System.out.println("onServiceDisconnected");
-        }
-
-        /**
-         * 绑定服务的时候调用
-         */
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // TODO Auto-generated method stub
-            System.out.println("onServiceConnected");
-        }
-    };
-
-
     @Override
     protected void onStart() {
         super.onStart();
-        initPlayUI();
         if (MediaPlayerUtils.getInstance().isPlaying()) {
             if (musicPlayBinder != null) {
                 musicPlayBinder.removeUpdateListener(this);
@@ -294,7 +270,11 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
                 firstInitService = true;
             }
         }
-        System.out.println("onStart");
+        changeMusicUi(MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.getInstance().isPlaying());
+        //初始化界面
+        if (MediaPlayerUtils.mediaPlayer != null && MusicListTool.getInstance().getPlaySong() != null) {
+            setProgress(MusicListTool.getInstance().getPlaySong().duration, MediaPlayerUtils.getInstance().getProgress());
+        }
     }
 
     @Override
@@ -394,23 +374,18 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     }
 
 
-    private void startReceiverService() {
-        Intent intent = new Intent();
-        intent.setClass(this, ReceiverService.class);
-        //开启服务播放音乐
-        if (Build.VERSION.SDK_INT >= 26) {
-            startForegroundService(intent);
-        } else {
-            startService(intent);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MediaPlayerEvent event) {
+        switch (event.getState()) {
+            case MediaPlayerEvent.STATE_STARTED:
+                changeMusicUi(MusicListTool.getInstance().getPlaySong(), true);
+                break;
+            case MediaPlayerEvent.STATE_PAUSE:
+                changeMusicUi(MusicListTool.getInstance().getPlaySong(), false);
+                break;
         }
     }
 
-    private void initStaticService() {
-        Intent intent = new Intent("com.example.administrator.test.receiver.MyStatic2Receiver");
-        ComponentName componentName = new ComponentName(this, "com.example.administrator.test.receiver.MyStatic2Receiver");
-        intent.setComponent(componentName);
-        sendBroadcast(intent);
-    }
 
     @Override
     public void onBackPressed() {
@@ -423,64 +398,48 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (binding.getShowName() == null || !binding.getShowName().equals(song.getName() + "(" + song.singer + ")")) {
-                    binding.setShowName(song.getName() + "(" + song + ")");
-                    if (!song.isInternet()||TextUtil.isEmpty(song.getImageUrl())) {
-                        Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
-                        if (bitmap != null) {
-                            binding.civ.setImageBitmap(bitmap);
-                        } else {
-                            binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-                        }
-                    } else {
-                        Picasso.with(Main2Activity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
-                    }
-
-                }
-                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                binding.setShowName(song.getName() + "(" + song.singer + ")");
-                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                binding.seekBar.setMax(duration);
-                binding.setDuration(MusicTimeTool.getMusicTime(duration));
-                if (!isTouchSeekBar) {
-                    binding.seekBar.setProgress(progress);
-                    binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
-                }
-                homeMusicIconRotateTool.rotateView(musicPlayBinder.isPlay(), binding.civ);
+              setProgress(duration,progress);
             }
         });
     }
 
-    private void initPlayUI() {
-        if (MediaPlayerUtils.mediaPlayer != null && MusicListTool.getInstance().getPlaySong() != null) {
-            if (binding.getShowName() == null || !binding.getShowName().equals(MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong().singer + ")")) {
-                binding.setShowName(MusicListTool.getInstance().getPlaySong().getName() + "(" + MusicListTool.getInstance().getPlaySong() + ")");
-//                Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
-//                if (bitmap != null) {
-//                    binding.civ.setImageBitmap(bitmap);
-//                } else {
-//                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-//                }
-                if (!MusicListTool.getInstance().getPlaySong().isInternet()||TextUtil.isEmpty(MusicListTool.getInstance().getPlaySong().getImageUrl())) {
-                    Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, MusicListTool.getInstance().getPlaySong().getKey(), MusicListTool.getInstance().getPlaySong().getAlbumId(), true, false);
-                    if (bitmap != null) {
-                        binding.civ.setImageBitmap(bitmap);
-                    } else {
-                        binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
-                    }
-                } else {
-                    Picasso.with(Main2Activity.this).load(Uri.parse(MusicListTool.getInstance().getPlaySong().getImageUrl())).into(binding.civ);
-                }
+    private void setPic(Song song) {
+        if (!song.isInternet() || TextUtil.isEmpty(song.getImageUrl())) {
+            Bitmap bitmap = LocalMusicUtils.getArtwork(Main2Activity.this, song.getKey(), song.getAlbumId(), true, false);
+            if (bitmap != null) {
+                binding.civ.setImageBitmap(bitmap);
+//                bitmap.recycle();
+            } else {
+                Picasso.with(this).load(R.drawable.girl_icon).into(binding.civ);
             }
-            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
-            binding.setShowName(MusicListTool.getInstance().getPlaySong().name + "(" + MusicListTool.getInstance().getPlaySong().singer + ")");
-            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
-            binding.seekBar.setMax(MusicListTool.getInstance().getPlaySong().duration);
-            binding.setDuration(MusicTimeTool.getMusicTime(MusicListTool.getInstance().getPlaySong().duration));
-            if (!isTouchSeekBar) {
-                binding.seekBar.setProgress(MediaPlayerUtils.getInstance().getProgress());
-                binding.setProgressTime(MusicTimeTool.getMusicTime(MediaPlayerUtils.getInstance().getProgress()));
-            }
+        } else {
+
+            Picasso.with(Main2Activity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
         }
     }
+
+
+    private void changeMusicUi(Song song, boolean isPlay) {
+        if (song == null)
+            return;
+        setPic(song);
+        binding.ivPlay.setSelected(isPlay);
+        binding.setShowName(song.getName()+"/"+song.getSinger());
+        binding.ivPlay.setSelected(isPlay);
+        homeMusicIconRotateTool.rotateView(isPlay, binding.civ);
+    }
+
+    private void setProgress(int duration, int progress) {
+        if (binding.seekBar.getMax() != duration) {
+            binding.seekBar.setMax(duration);
+            binding.setDuration(MusicTimeTool.getMusicTime(duration));
+        }
+        if (!isTouchSeekBar) {
+            binding.seekBar.setProgress(progress);
+            binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
+            System.out.println("update");
+        }
+    }
+
+
 }

@@ -91,6 +91,8 @@ public class StaticBaseInfo {
     public static final String QQ_NEW_MUSIC_DATA_ID_REPLACE = "&ID&";
     public static final String QQ_NEW_MUSIC_DATA_PERIOD_REPLACE = "&PERIOD&";
 
+    public static final String QQ_MUSIC_SEARCH_ADD="soso/fcgi-bin/search_cp?t=0&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=1&g_tk=938407465&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0";
+
 
     public static final String QQ_MUSIC_GE_DAN_SELECT_BY_ITEM_ID="cgi-bin/musicu.fcg?-=recom5243062888560728&g_tk=1019472139&loginUin=1359163679&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0";
     public static final String QQ_MUSIC_GE_DAN_SELECT_BY_ITEM_ID_REPLACE="$ITEM_ID$";
@@ -113,6 +115,14 @@ public class StaticBaseInfo {
 
 
     public static final int QQ_MUSIC_FOCUSE_TYPE_10002 = 10002;
+    public static final int QQ_MUSIC_FOCUSE_TYPE_3002 = 3002;
+
+    //网上QQ音乐统一的代理请求接口
+    public static  final String OTHER_BASE_URL = "https://v1.itooi.cn/";
+    public static  final String OTHER_TENCENT_GET_GE_CI = "tencent/lrc";//?id=003meFNe1QWeUA
+    public static  final String OTHER_TENCENT_GET_URL = "tencent/url";//??id=003meFNe1QWeUA&quality=128/flac
+    public static  final String OTHER_TENCENT_GET_URL_ADDRESS = "https://v1.itooi.cn/tencent/url?id=&id&&quality=flac";
+    public static  final String OTHER_TENCENT_GET_URL_ADDRESS_REPLACE = "&id&";
 
 }
 

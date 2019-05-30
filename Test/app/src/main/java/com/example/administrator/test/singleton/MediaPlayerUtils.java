@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.event.BufferUpdateEvent;
 import com.example.administrator.test.event.EventInternetMusicEnd;
+import com.example.administrator.test.event.MediaPlayerEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -73,6 +74,7 @@ public class MediaPlayerUtils {
                 mediaPlayer.start();
                 isEnd = false;
                 System.out.println("play");
+                EventBus.getDefault().post(new MediaPlayerEvent(MediaPlayerEvent.STATE_STARTED));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,20 +86,12 @@ public class MediaPlayerUtils {
         try {
             mediaPlayer.pause();
             pauseProgress = mediaPlayer.getCurrentPosition();
+            EventBus.getDefault().post(new MediaPlayerEvent(MediaPlayerEvent.STATE_PAUSE));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void contiuneMusic() {
-        try {
-            if (pauseProgress > 0) {
-                mediaPlayer.start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public void resetMusic() {
         try {
@@ -141,6 +135,7 @@ public class MediaPlayerUtils {
                     resetMusic();
                     isEnd = true;
                     Toast.makeText(context,"资源不可用，播放失败！",Toast.LENGTH_SHORT).show();
+                    EventBus.getDefault().post(new MediaPlayerEvent(MediaPlayerEvent.STATE_ERROR));
                     return true;
                 }
             });
@@ -156,6 +151,7 @@ public class MediaPlayerUtils {
                     mediaPlayer.start();
                     isEnd = false;
                     System.out.println("play");
+                    EventBus.getDefault().post(new MediaPlayerEvent(MediaPlayerEvent.STATE_STARTED));
                 }
             });
             mediaPlayer.prepare();//初始化播放器MediaPlayer
@@ -165,8 +161,13 @@ public class MediaPlayerUtils {
         }
     }
 
+    public void setEnd(boolean end) {
+        isEnd = end;
+    }
+
     public void changeMusic(Song song){
          isEnd = true;
          MusicListTool.getInstance().setPlaySong(song);
     }
+
 }

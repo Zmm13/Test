@@ -143,7 +143,8 @@ public class MusicPlayService extends Service {
 //                                    System.out.println("刷新:" + "thread:" + Thread.currentThread().getId() + "////" + musiPlaycUpdateInterface.getClass().getName());
                                 }
                                 Thread.sleep(duration);
-                            } else {
+                            }
+                            else {
                                 break;
                             }
                         } catch (Exception e) {

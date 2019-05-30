@@ -10,6 +10,7 @@ import com.example.administrator.test.databinding.ActivityMyWebBinding;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
+import com.example.administrator.test.utils.TextUtil;
 import com.just.agentweb.AgentWeb;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -17,6 +18,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class MyWebActivity extends BaseActivity<ActivityMyWebBinding> {
     private AgentWeb agentWeb;
+    private String path = "https://www.baidu.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +39,13 @@ public class MyWebActivity extends BaseActivity<ActivityMyWebBinding> {
 
     @Override
     protected void initData() {
+        String s = getIntent().getStringExtra("path");
         agentWeb = AgentWeb.with(this)
                 .setAgentWebParent(binding.rlMain, new RelativeLayout.LayoutParams(-1, -1))
                 .useDefaultIndicator()
                 .createAgentWeb()
                 .ready()
-                .go("https://www.baidu.com");
+                .go(TextUtil.isEmpty(s) ? path : s);
     }
 
     @Override

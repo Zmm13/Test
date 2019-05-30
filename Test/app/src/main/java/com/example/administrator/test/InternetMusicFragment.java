@@ -39,9 +39,17 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class InternetMusicFragment extends Fragment {
-    private  View view;
+    private View view;
     private boolean isViewInitiated = false;
     private boolean isVisibleToUser = false;
     private boolean isLoadData = false;
@@ -89,16 +97,17 @@ public class InternetMusicFragment extends Fragment {
     }
 
 
-    public void prepareFetchData(){
-          if(view!=null&&isVisibleToUser&&isViewInitiated&&!isLoadData){
-              presenter.getMusicsList("4","2019-05-27");
-              isLoadData = true;
-          }else if(isLoadData){
+    public void prepareFetchData() {
+        if (view != null && isVisibleToUser && isViewInitiated && !isLoadData) {
+            presenter.getMusicsList("4", "2019-05-27");
+            isLoadData = true;
+        } else if (isLoadData) {
 
-          }
+        }
     }
 
-    private void initRecyclerview(){  LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+    private void initRecyclerview() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         binding.rv.setLayoutManager(linearLayoutManager);
         list = new ArrayList<>();
@@ -126,7 +135,11 @@ public class InternetMusicFragment extends Fragment {
     }
 
     private void selectSong(QQMusic song) {
-        presenter.getMusicInfo(song);
+        if(MusicListTool.getInstance().getPlaySong() == null || (!song.getMid().equals(MusicListTool.getInstance().getPlaySong().getMid()))){
+            presenter.getMusicInfo(song);
+        }
+//        presenter.getMusicUrl(song);
+//        EventBus.getDefault().post(new QQMusicGetKeyEvent(StaticBaseInfo.OTHER_TENCENT_GET_URL_ADDRESS.replace(StaticBaseInfo.OTHER_TENCENT_GET_URL_ADDRESS_REPLACE,song.getMid()),song));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -138,50 +151,83 @@ public class InternetMusicFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MusicChangeEvent event) {
-        //处理逻辑
-        if (list != null && list.size() > 0) {
-            boolean a = false;
-            boolean b = false;
-            for (int i = 0; i < list.size(); i++) {
-                if (playSong != null) {
-                    if (!a && list.get(i).getMid().equals(playSong.getMid())) {
-                        adapter.notifyItemChanged(i);
-                        a = true;
+    public synchronized void onEvent(MusicChangeEvent event) {
+//        处理逻辑
+        io.reactivex.Observable.create(new ObservableOnSubscribe<List<QQMusic>>() {
+            @Override
+            public void subscribe(ObservableEmitter<List<QQMusic>> e) {
+                if (list != null && list.size() > 0) {
+                    boolean a = false;
+                    boolean b = false;
+                    for (int i = 0; i < list.size(); i++) {
+                        if (playSong != null) {
+                            if (!a && list.get(i).getMid().equals(playSong.getMid())) {
+                                adapter.notifyItemChanged(i);
+                                a = true;
+                            }
+                        }
+                        if(!MusicListTool.getInstance().getPlaySong().isInternet()){
+                           b = true;
+                        }
+                        if (!b && list.get(i).getMid().equals(MusicListTool.getInstance().getPlaySong().getMid())) {
+                            adapter.notifyItemChanged(i);
+                            b = true;
+                        }
+                        if (a && b) {
+                            break;
+                        }
                     }
                 }
-                if (!b && list.get(i).getMid().equals(MusicListTool.getInstance().getPlaySong().getMid())) {
-                    adapter.notifyItemChanged(i);
-                    b = true;
-                }
-                if (a && b) {
-                    break;
-                }
+                playSong = MusicListTool.getInstance().getPlaySong();
             }
-        }
-        playSong = MusicListTool.getInstance().getPlaySong();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<QQMusic>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(List<QQMusic> qqMusics) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventInternetMusicEnd event) {
         QQMusic qqMusic = null;
         if (list != null && list.size() > 0) {
-            if (playSong == null) {
+            if (MusicListTool.getInstance().getPlaySong() == null || !MusicListTool.getInstance().getPlaySong().isInternet()) {
                 qqMusic = list.get(0);
             } else {
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getMid().equals(playSong.getMid())) {
+                    if (list.get(i).getMid().equals(MusicListTool.getInstance().getPlaySong().getMid())) {
                         qqMusic = list.get(i + 1 < list.size() ? i + 1 : 0);
                         break;
                     }
-                    if(i == list.size()-1){
+                    if (i == list.size() - 1) {
                         qqMusic = list.get(0);
                     }
                 }
             }
         }
-        if (qqMusic != null)
+        if (qqMusic != null) {
             selectSong(qqMusic);
+        }else {
+            MediaPlayerUtils.getInstance().playMusic(getContext());
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -190,11 +236,12 @@ public class InternetMusicFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(QQInternetMusicListChangeEvent event) {
-       if(presenter!=null){
-           presenter.getMusicsList(event.getInfo().getTopId()+"",event.getInfo().getPeriod());
-       }
+        if (presenter != null) {
+            presenter.getMusicsList(event.getInfo().getTopId() + "", event.getInfo().getPeriod());
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -220,6 +267,7 @@ public class InternetMusicFragment extends Fragment {
         }
         String path = StaticBaseInfo.QQ_NEW_MUSIC_TOP_100_PLAY + event.getKey();
         Song song1 = new Song();
+//        song1.setPath(event.getKey());
         song1.setPath(path);
         song1.setSinger(event.getSong().getSingerNames());
         song1.setName(event.getSong().getTitle());

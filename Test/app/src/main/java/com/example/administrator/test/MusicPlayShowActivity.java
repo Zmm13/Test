@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.databinding.BindingAdapter;
+import android.databinding.BindingMethod;
+import android.databinding.BindingMethods;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,6 +22,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -27,9 +32,17 @@ import com.example.administrator.test.base.BaseActivity;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.ActivityMusicPlayShowBinding;
 import com.example.administrator.test.event.BufferUpdateEvent;
+import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.IsLightChangeEvent;
+import com.example.administrator.test.event.MediaPlayerEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
+import com.example.administrator.test.event.QQGeCiEvent;
+import com.example.administrator.test.lrc.LrcAdapter;
+import com.example.administrator.test.lrc.LrcEntity;
+import com.example.administrator.test.lrc.LrcLineEntity;
+import com.example.administrator.test.lrc.LrcListView;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
+import com.example.administrator.test.presenter.MusicPlayShowPresenter;
 import com.example.administrator.test.service.MusicPlayService;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
@@ -38,17 +51,21 @@ import com.example.administrator.test.utils.BitmapTool;
 import com.example.administrator.test.utils.HomeMusicIconRotateTool;
 import com.example.administrator.test.utils.LocalMusicUtils;
 import com.example.administrator.test.utils.MusicTimeTool;
+import com.example.administrator.test.utils.Res;
 import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+
+import me.wcy.lrcview.LrcView;
 
 public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBinding> {
 
@@ -56,8 +73,10 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
     private boolean isTouchSeekBar = false;//主页seekbar是否触摸
     private Intent intent;//播放音乐服务的intent对象
     private HomeMusicIconRotateTool homeMusicIconRotateTool;//播放音乐服务的intent对象
-    private boolean changePic = true;
     private boolean firstInitService = false;
+    private MusicPlayShowPresenter presenter;
+    //    private LrcAdapter lrcAdapter;
+    private String geci = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,31 +93,20 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
     protected void initView() {
         binding.llMain.setPadding(0, ScreenUtils.getStatusHeight(context), 0, 0);
         binding.setIsLight(StaticBaseInfo.isLight(this));
+        binding.setIsAllGeCi(false);
     }
 
     @Override
     protected void initData() {
         intent = new Intent();
+        presenter = new MusicPlayShowPresenter();
         intent.setClass(this, MusicPlayService.class);
-        //初始化界面
-        if (MediaPlayerUtils.mediaPlayer != null && MusicListTool.getInstance().getPlaySong() != null) {
-            if (binding.getSongName() == null || !binding.getSongName().equals(MusicListTool.getInstance().getPlaySong().getName())) {
-                binding.setSongName(MusicListTool.getInstance().getPlaySong().getName());
-                binding.setSinger(MusicListTool.getInstance().getPlaySong().singer);
-                setPic(MusicListTool.getInstance().getPlaySong());
-            }
-            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
-            binding.setSongName(MusicListTool.getInstance().getPlaySong().name);
-            binding.setSinger(MusicListTool.getInstance().getPlaySong().singer);
-            binding.ivPlay.setSelected(MediaPlayerUtils.getInstance().isPlaying());
-            binding.seekBar.setMax(MusicListTool.getInstance().getPlaySong().duration);
-            binding.setDuration(MusicTimeTool.getMusicTime(MusicListTool.getInstance().getPlaySong().duration));
-            if (!isTouchSeekBar) {
-                binding.seekBar.setProgress(MediaPlayerUtils.getInstance().getProgress());
-                binding.setProgressTime(MusicTimeTool.getMusicTime(MediaPlayerUtils.getInstance().getProgress()));
-            }
-        }
         homeMusicIconRotateTool = new HomeMusicIconRotateTool();
+
+        if (MusicListTool.getInstance().getPlaySong() != null && MusicListTool.getInstance().getPlaySong().isInternet()) {
+            presenter.getMusicGeCi(MusicListTool.getInstance().getPlaySong().getMid());
+        }
+
     }
 
     @Override
@@ -138,10 +146,10 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 }
                 if (musicPlayBinder != null) {
                     if (musicPlayBinder.isPlay()) {
+//                        changeMusicUi(MusicListTool.getInstance().getPlaySong(), false);
                         musicPlayBinder.pause(MusicPlayShowActivity.this);
-                        binding.ivPlay.setSelected(false);
-                        homeMusicIconRotateTool.rotateView(false, binding.civ);
                     } else {
+//                        changeMusicUi(MusicListTool.getInstance().getPlaySong(), true);
                         musicPlayBinder.play(MusicPlayShowActivity.this, MusicPlayShowActivity.this);
                     }
                 } else {
@@ -155,6 +163,36 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 finish();
             }
         });
+        binding.civ.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.setIsAllGeCi(true);
+            }
+        });
+        binding.lrcView2.setOnPlayClickListener(new LrcView.OnPlayClickListener() {
+            @Override
+            public boolean onPlayClick(long time) {
+                binding.setIsAllGeCi(false);
+                return false;
+            }
+        });
+
+        binding.ivNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MusicListTool.getInstance().getPlaySong() != null) {
+                    if (MusicListTool.getInstance().getPlaySong().isInternet()) {
+                        EventBus.getDefault().post(new EventInternetMusicEnd());
+                    } else {
+                        Long position = MusicListTool.getInstance().getPlaySong().getId();
+                        Long next = (position + 1) < MusicListTool.getInstance().getList(context).size() ? (position) : 0;
+                        MediaPlayerUtils.getInstance().changeMusic(MusicListTool.getInstance().getList(context).get((int) next.longValue()));
+                    }
+                }
+
+            }
+        });
+
     }
 
     //初始化服务连接对象
@@ -184,9 +222,9 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 musicPlayBinder.addUpdateListener(MusicPlayShowActivity.this);
 //                musicPlayBinder.play(context,MusicPlayShowActivity.this);
             }
-            if(firstInitService){
+            if (firstInitService) {
                 musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
-                musicPlayBinder.play(context,MusicPlayShowActivity.this);
+                musicPlayBinder.play(context, MusicPlayShowActivity.this);
                 firstInitService = false;
             }
         }
@@ -203,6 +241,11 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 bindService(intent, connection, Context.BIND_AUTO_CREATE);
                 firstInitService = true;
             }
+        }
+        changeMusicUi(MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.getInstance().isPlaying());
+        //初始化界面
+        if (MediaPlayerUtils.mediaPlayer != null && MusicListTool.getInstance().getPlaySong() != null) {
+            setProgress(MusicListTool.getInstance().getPlaySong().duration, MediaPlayerUtils.getInstance().getProgress());
         }
     }
 
@@ -278,7 +321,6 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MusicChangeEvent event) {
-        changePic = true;
         if (musicPlayBinder != null) {
             if (ActivityManager.getManager().isTop(this)) {
                 musicPlayBinder.removeUpdateListener(MusicPlayShowActivity.this);
@@ -286,6 +328,9 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
             }
         } else {
             initService();
+        }
+        if (MusicListTool.getInstance().getPlaySong().isInternet()) {
+            presenter.getMusicGeCi(MusicListTool.getInstance().getPlaySong().getMid());
         }
     }
 
@@ -296,32 +341,52 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
         binding.seekBar.setSecondaryProgress(i);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MediaPlayerEvent event) {
+        switch (event.getState()) {
+            case MediaPlayerEvent.STATE_STARTED:
+                changeMusicUi(MusicListTool.getInstance().getPlaySong(), true);
+                break;
+            case MediaPlayerEvent.STATE_PAUSE:
+                changeMusicUi(MusicListTool.getInstance().getPlaySong(), false);
+                break;
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(QQGeCiEvent event) {
+//        Toast.makeText(MusicPlayShowActivity.this,event.getGeci(),Toast.LENGTH_SHORT).show();
+//        LrcEntity entity = LrcEntity.parse(event.getGeci());
+//        lrcAdapter = new LrcAdapter();
+//        lrcAdapter.setData(entity);
+//        binding.llv.setVisibility(View.VISIBLE);
+//        binding.llv.setAdapter(lrcAdapter);
+//        binding.llv.start();
+        geci = event.getGeci();
+        binding.lrcView.loadLrc(geci);
+        binding.lrcView2.loadLrc(geci);
+    }
+
     @Override
     public void update(Song song, int progress, int duration) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setPic(song);
-                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                binding.setSongName(song.getName());
-                binding.setSinger(song.singer);
-                binding.ivPlay.setSelected(musicPlayBinder.isPlay());
-                binding.seekBar.setMax(duration);
-                binding.setDuration(MusicTimeTool.getMusicTime(duration));
-                if (!isTouchSeekBar) {
-                    binding.seekBar.setProgress(progress);
-                    binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
+                setProgress(duration, progress);
+//                if(lrcAdapter !=  null){
+//                    binding.llv.seekTo(progress);
+//                }
+                if (binding.lrcView.hasLrc()) {
+                    binding.lrcView.updateTime(progress);
                 }
-                homeMusicIconRotateTool.rotateView(musicPlayBinder.isPlay(), binding.civ);
+                if (binding.lrcView2.hasLrc()) {
+                    binding.lrcView2.updateTime(progress);
+                }
             }
         });
     }
 
     private void setPic(Song song) {
-        if (!changePic) {
-            return;
-        }
-        changePic = false;
         Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -338,18 +403,22 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
             public void onPrepareLoad(Drawable placeHolderDrawable) {
             }
         };
-        if (!song.isInternet()||TextUtil.isEmpty(song.getImageUrl())) {
+        if (!song.isInternet() || TextUtil.isEmpty(song.getImageUrl())) {
             Bitmap bitmap = LocalMusicUtils.getArtwork(MusicPlayShowActivity.this, song.getKey(), song.getAlbumId(), true, false);
             if (bitmap != null) {
                 binding.civ.setImageBitmap(bitmap);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    binding.llMain.setBackground(new BitmapDrawable(getResources(), BitmapTool.toMoHu(bitmap,context)));
+                    Bitmap bitmap1 = BitmapTool.toMoHu(bitmap, context);
+                    binding.llMain.setBackground(new BitmapDrawable(getResources(), bitmap1));
+//                    bitmap1.recycle();
                 }
+//                bitmap.recycle();
             } else {
                 Picasso.with(this).load(R.drawable.girl_icon).into(binding.civ);
                 Picasso.with(this).load(R.drawable.girl_icon).transform(new BlurTransformation(this)).into(target);
             }
         } else {
+
             Picasso.with(MusicPlayShowActivity.this).load(Uri.parse(song.getImageUrl())).into(binding.civ);
             Picasso.with(this).load(Uri.parse(song.getImageUrl())).transform(new BlurTransformation(this)).into(target);
         }
@@ -360,4 +429,33 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
 //                    binding.civ.setImageDrawable(getResources().getDrawable(R.drawable.girl_icon));
 //                }
     }
+
+
+    private void changeMusicUi(Song song, boolean isPlay) {
+        if (song == null)
+            return;
+        setPic(song);
+        binding.ivPlay.setSelected(isPlay);
+        binding.setSongName(song.getName());
+        binding.setSinger(song.singer);
+        binding.ivPlay.setSelected(isPlay);
+        homeMusicIconRotateTool.rotateView(isPlay, binding.civ);
+    }
+
+    private void setProgress(int duration, int progress) {
+        if (binding.seekBar.getMax() != duration) {
+            binding.seekBar.setMax(duration);
+            binding.setDuration(MusicTimeTool.getMusicTime(duration));
+        }
+        if (!isTouchSeekBar) {
+            binding.seekBar.setProgress(progress);
+            binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
+        }
+    }
+
+    @BindingAdapter(value = {"lrcNormalTextColor"}, requireAll = false)
+    public static void setActionClickListener(LrcView view, int color) {
+        view.setNormalColor(color);
+    }
+
 }
