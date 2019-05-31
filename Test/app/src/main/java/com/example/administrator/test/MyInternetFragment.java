@@ -21,6 +21,7 @@ import com.example.administrator.test.adapter.ItemInernetAdapter;
 import com.example.administrator.test.adapter.QqTop100Adapter;
 import com.example.administrator.test.adapter.TopListAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
+import com.example.administrator.test.entity.GeDanEvent;
 import com.example.administrator.test.entity.GeDanInfo;
 import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.entity.QQTopGroup;
@@ -107,7 +108,13 @@ public class MyInternetFragment extends Fragment {
                 EventBus.getDefault().post(new QQInternetMusicListChangeEvent(qqTopListInfos.get(position)));
             }
         };
-        geDanAdapter = new GeDanAdapter(getActivity(), geDanInfos, binding.mrvGedan);
+        geDanAdapter = new GeDanAdapter(getActivity(), geDanInfos, binding.mrvGedan) {
+            @Override
+            protected void onItemClick(int i) {
+                EventBus.getDefault().post(new HomeFragmentChangeEvent(1));
+                EventBus.getDefault().post(new GeDanEvent(geDanInfos.get(i).getTid()));
+            }
+        };
         binding.mrvTopList.setAdapter(topListAdapter);
         binding.mrvGedan.setAdapter(geDanAdapter);
         binding.ctlTopList.setOnTabSelectListener(new OnTabSelectListener() {

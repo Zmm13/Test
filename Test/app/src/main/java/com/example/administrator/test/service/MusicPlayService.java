@@ -70,9 +70,10 @@ public class MusicPlayService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-       if(MediaPlayerUtils.mediaPlayer!=null){
-           MediaPlayerUtils.mediaPlayer.release();
-       }
+//       if(MediaPlayerUtils.mediaPlayer!=null){
+//           MediaPlayerUtils.mediaPlayer.release();
+//           MediaPlayerUtils.mediaPlayer = null;
+//       }
     }
 
     public class MusicPlayBinder extends Binder {

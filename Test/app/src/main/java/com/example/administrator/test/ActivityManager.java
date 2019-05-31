@@ -46,4 +46,12 @@ public class ActivityManager {
     public boolean isTop(AppCompatActivity activity) {
         return list.size()>0 ? list.indexOf(activity) == list.size() - 1 : false;
     }
+
+    public void exit(){
+        if(list!=null && list.size()>0){
+            for(AppCompatActivity activity : list){
+                activity.finish();
+            }
+        }
+    }
 }

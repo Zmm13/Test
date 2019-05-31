@@ -18,6 +18,15 @@ public class GeDanInfo {
     private String album_pic_mid;
     private String cover_url_big;
     private String title;
+    private String tid;
+
+    public String getTid() {
+        return tid;
+    }
+
+    public void setTid(String tid) {
+        this.tid = tid;
+    }
 
     @BindingAdapter({"imagePath"})
     public static void loadimage(ImageView imageView, String url){

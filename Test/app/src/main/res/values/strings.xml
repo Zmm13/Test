@@ -8,4 +8,9 @@
     <string name="item2_select"><b>本地</b></string>
     <string name="item3">设置</string>
     <string name="item3_select"><b>设置</b></string>
+
+
+    <string name="showname_null">null</string>
+    <string name="progresstime_null">0:00</string>
+
 </resources>

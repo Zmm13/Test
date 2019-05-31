@@ -382,6 +382,7 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
                 if (binding.lrcView2.hasLrc()) {
                     binding.lrcView2.updateTime(progress);
                 }
+
             }
         });
     }
@@ -443,11 +444,11 @@ public class MusicPlayShowActivity extends BaseActivity<ActivityMusicPlayShowBin
     }
 
     private void setProgress(int duration, int progress) {
-        if (binding.seekBar.getMax() != duration) {
+        if (duration>=0&&binding.seekBar.getMax() != duration) {
             binding.seekBar.setMax(duration);
             binding.setDuration(MusicTimeTool.getMusicTime(duration));
         }
-        if (!isTouchSeekBar) {
+        if (duration>=0&&!isTouchSeekBar) {
             binding.seekBar.setProgress(progress);
             binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
         }

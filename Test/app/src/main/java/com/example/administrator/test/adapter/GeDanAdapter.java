@@ -25,7 +25,7 @@ import java.util.List;
  * Time 2019/5/24
  * PackageName com.example.administrator.test.adapter
  */
-public class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
+public abstract class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
     private Context context;
     private List<GeDanInfo> list;
     private int x;
@@ -49,6 +49,12 @@ public class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
     public ViewHoler onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_ge_dan, null, false);
         ViewHoler holer = new ViewHoler(view);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClick(holer.getAdapterPosition());
+            }
+        });
         return holer;
     }
 
@@ -78,4 +84,6 @@ public class GeDanAdapter extends RecyclerView.Adapter<GeDanAdapter.ViewHoler> {
             binding = DataBindingUtil.bind(itemView);
         }
     }
+
+    protected abstract void onItemClick(int i);
 }

@@ -123,6 +123,7 @@ public class StaticBaseInfo {
     public static  final String OTHER_TENCENT_GET_URL = "tencent/url";//??id=003meFNe1QWeUA&quality=128/flac
     public static  final String OTHER_TENCENT_GET_URL_ADDRESS = "https://v1.itooi.cn/tencent/url?id=&id&&quality=flac";
     public static  final String OTHER_TENCENT_GET_URL_ADDRESS_REPLACE = "&id&";
+    public static  final String OTHER_TENCENT_GET_CD = "tencent/songList";//?id=1135983683&format=1
 
 }
 

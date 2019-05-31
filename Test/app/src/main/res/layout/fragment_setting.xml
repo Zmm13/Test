@@ -191,7 +191,17 @@
                 android:layout_marginRight="@dimen/x12"
                 app:isCheck="@{isLight ? false : true}" />
         </LinearLayout>
-
+        <Button
+            android:id="@+id/bt_exit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x40"
+            android:layout_marginLeft="@dimen/x30"
+            android:layout_marginRight="@dimen/x30"
+            android:layout_marginTop="@dimen/x20"
+            android:textColor="@color/white"
+            android:textSize="@dimen/x12"
+            android:background="@drawable/selector_button_exit_bg"
+            android:text="退出应用"/>
     </LinearLayout>
 </layout>
 

@@ -41,6 +41,7 @@ import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MediaPlayerEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.QQMusicFocuse10002Event;
+import com.example.administrator.test.event.SearchInternetMusicEvent;
 import com.example.administrator.test.minterfcae.MusiPlaycUpdateInterface;
 import com.example.administrator.test.service.MusicPlayService;
 import com.example.administrator.test.service.MyTestService;
@@ -218,6 +219,15 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
             public void onClick(View view) {
 
                 ActivityUtils.startActivity(Main2Activity.this, MusicPlayShowActivity.class);
+            }
+        });
+        binding.ivSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(binding.vp.getCurrentItem() != 1){
+                    binding.vp.setCurrentItem(1);
+                }
+                EventBus.getDefault().post(new SearchInternetMusicEvent());
             }
         });
     }
@@ -430,11 +440,11 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     }
 
     private void setProgress(int duration, int progress) {
-        if (binding.seekBar.getMax() != duration) {
+        if (duration>=0&&binding.seekBar.getMax() != duration) {
             binding.seekBar.setMax(duration);
             binding.setDuration(MusicTimeTool.getMusicTime(duration));
         }
-        if (!isTouchSeekBar) {
+        if (duration>=0&&!isTouchSeekBar) {
             binding.seekBar.setProgress(progress);
             binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
             System.out.println("update");

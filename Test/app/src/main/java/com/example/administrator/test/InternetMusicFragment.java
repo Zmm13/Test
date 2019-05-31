@@ -9,15 +9,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.administrator.test.adapter.QqTop100Adapter;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.FragmentInternetMusicBinding;
+import com.example.administrator.test.entity.GeDanEvent;
 import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.IsLightChangeEvent;
@@ -26,10 +29,12 @@ import com.example.administrator.test.event.QQInternetMusicListChangeEvent;
 import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
+import com.example.administrator.test.event.SearchInternetMusicEvent;
 import com.example.administrator.test.presenter.InternetMusicPresenter;
 import com.example.administrator.test.presenter.MyInternetPresenter;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.KeybordsUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
 
@@ -78,6 +83,17 @@ public class InternetMusicFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_internet_music, container, false);
         view = binding.getRoot();
         initRecyclerview();
+        binding.editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                KeybordsUtils.closeKeybord(binding.editText,getActivity());
+                String key = binding.editText.getText().toString();
+                if(i == EditorInfo.IME_ACTION_SEARCH){
+                   presenter.search(key);
+                }
+                return false;
+            }
+        });
         return view;
     }
 
@@ -99,7 +115,8 @@ public class InternetMusicFragment extends Fragment {
 
     public void prepareFetchData() {
         if (view != null && isVisibleToUser && isViewInitiated && !isLoadData) {
-            presenter.getMusicsList("4", "2019-05-27");
+//            presenter.getMusicsList("4", "2019-05-27");
+            binding.setIsLight(StaticBaseInfo.isLight(getActivity()));
             isLoadData = true;
         } else if (isLoadData) {
 
@@ -232,6 +249,7 @@ public class InternetMusicFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(IsLightChangeEvent event) {
+        binding.setIsLight(StaticBaseInfo.isLight(getActivity()));
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
@@ -244,9 +262,21 @@ public class InternetMusicFragment extends Fragment {
         }
     }
 
+ @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(GeDanEvent event) {
+        if (presenter != null) {
+            presenter.getCD(event.getId());
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(QQMusicFocuse10002Event event) {
         presenter.getMusicsList(event.getS());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(SearchInternetMusicEvent event) {
+        KeybordsUtils.openKeybord(binding.editText,getActivity());
     }
 
     @Override
@@ -275,6 +305,14 @@ public class InternetMusicFragment extends Fragment {
         song1.setMid(event.getSong().getMid());
         song1.setInternet(true);
         MediaPlayerUtils.getInstance().changeMusic(song1);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(KeybordsUtils.isSoftInputShow(getActivity())){
+            KeybordsUtils.closeKeybord(binding.editText,getActivity());
+        }
     }
 
     @Override
