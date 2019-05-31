@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Test</string>
+    <string name="app_name">MyMc</string>
     <string name="item0">发现</string>
     <string name="item0_select"><b>发现</b></string>
     <string name="item1">音乐</string>
