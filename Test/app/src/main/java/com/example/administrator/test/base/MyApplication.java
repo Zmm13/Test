@@ -2,6 +2,8 @@ package com.example.administrator.test.base;
 
 import android.app.Application;
 
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+
 
 /**
  * Create by zmm
@@ -14,5 +16,6 @@ public class MyApplication extends Application {
         super.onCreate();
         // 初始化Fresco
 //        Fresco.initialize(this);
+
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.administrator.test">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -51,7 +52,10 @@
             android:exported="true" />
 
         <activity android:name=".MusicPlayShowActivity" />
-        <activity android:name=".MyWebActivity"></activity>
+        <activity android:name=".MyWebActivity" />
+        <activity android:name=".VideoActivity"
+            android:launchMode="singleInstance"
+            android:configChanges="screenSize|keyboardHidden|orientation"/>
     </application>
 
 </manifest>

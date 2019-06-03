@@ -15,7 +15,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
-import tv.danmaku.ijk.media.player.IjkLibLoader;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 /**
@@ -23,23 +22,24 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
  * Time 2019/6/3
  * PackageName com.example.administrator.test.singleton
  */
-public class MediaPlayerUtils {
-    public static volatile MediaPlayerUtils instance = null;
-    public static IjkMediaPlayer mediaPlayer;
+public class IjkPlayerUtils {
+    public static volatile IjkPlayerUtils instance = null;
+    private IjkMediaPlayer mediaPlayer;
     private boolean isEnd = true;
 
-    private MediaPlayerUtils() {
+    private IjkPlayerUtils() {
         mediaPlayer = new IjkMediaPlayer();
+        mediaPlayer.setLogEnabled(true);
         mediaPlayer.setLooping(false);
 //        mediaPlayer.setScreenOnWhilePlaying(true);//屏幕常亮
 //        mediaPlayer.setKeepInBackground(false);//后台播放
     }
 
-    public static MediaPlayerUtils getInstance() {
+    public static IjkPlayerUtils getInstance() {
         if (instance == null) {
             synchronized (IjkPlayerUtils.class) {
                 if (instance == null) {
-                    instance = new MediaPlayerUtils();
+                    instance = new IjkPlayerUtils();
                 }
             }
         }

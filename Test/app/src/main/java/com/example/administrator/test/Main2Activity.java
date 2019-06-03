@@ -447,7 +447,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         if (duration>=0&&!isTouchSeekBar) {
             binding.seekBar.setProgress(progress);
             binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
-            System.out.println("update");
+//            System.out.println("update");
         }
     }
 

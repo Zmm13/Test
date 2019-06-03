@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <import type="com.example.administrator.test.utils.StaticBaseInfo" />
+
+
+        <variable
+            name="isLight"
+            type="Boolean" />
+
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/rl_main"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".VideoActivity"
+        android:background="@{isLight ? StaticBaseInfo.baseColor_light : StaticBaseInfo.baseColor_dark}">
+        <SurfaceView
+            android:id="@+id/sfv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x200" />
+        <LinearLayout
+            android:id="@+id/ll_control"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x30"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_alignBottom="@+id/sfv">
+
+            <ImageView
+                android:id="@+id/iv_start"
+                android:layout_width="@dimen/x30"
+                android:layout_height="@dimen/x30"
+                android:padding="@dimen/x8"
+                android:src="@drawable/selector_video_start"
+                android:scaleType="centerInside"
+                />
+            <TextView
+                android:id="@+id/tv_time_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/x10"
+                android:textColor="@color/white"
+                android:gravity="center"/>
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:maxHeight="@dimen/x2"
+                android:minHeight="@dimen/x2"
+                android:paddingLeft="@dimen/x5"
+                android:paddingRight="@dimen/x5"
+                android:progressDrawable="@drawable/seekbar_bg_light"
+                android:splitTrack="false"
+                android:thumb="@drawable/seekbar_thumb_bg_light"
+                android:thumbOffset="@dimen/x5" />
+            <TextView
+                android:id="@+id/tv_time_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/x10"
+                android:textColor="@color/white"
+                android:gravity="center"/>
+            <ImageView
+                android:id="@+id/iv_full_or_half_screen"
+                android:layout_width="@dimen/x30"
+                android:layout_height="@dimen/x30"
+                android:padding="@dimen/x8"
+                android:src="@drawable/full_screen"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

@@ -18,11 +18,20 @@ public class QQTopListInfo {
     private String period;
     private String listenNum;
     private String headPicUrl;
+    private int recType;
 
     @BindingAdapter({"imagePath"})
     public static void loadimage(ImageView imageView, String url){
 //        Glide.with(imageView.getContext()).load(Uri.parse(url)).into(imageView);
         Picasso.with(imageView.getContext()).load(Uri.parse(url)).into(imageView);
+    }
+
+    public int getRecType() {
+        return recType;
+    }
+
+    public void setRecType(int recType) {
+        this.recType = recType;
     }
 
     public int getTopId() {

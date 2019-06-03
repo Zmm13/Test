@@ -32,6 +32,7 @@ import com.example.administrator.test.event.HomeFragmentChangeEvent;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.QQInternetMusicListChangeEvent;
+import com.example.administrator.test.event.QQMVEvent;
 import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.event.QQMusicShouYeInfoEvent;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
@@ -105,7 +106,15 @@ public class MyInternetFragment extends Fragment {
             @Override
             protected void onItemClick(int position) {
                 EventBus.getDefault().post(new HomeFragmentChangeEvent(1));
-                EventBus.getDefault().post(new QQInternetMusicListChangeEvent(qqTopListInfos.get(position)));
+                switch (qqTopListInfos.get(position).getRecType()) {
+                    case StaticBaseInfo.QQ_MUSIC_SIMPLE_TYPE:
+                        EventBus.getDefault().post(new QQInternetMusicListChangeEvent(qqTopListInfos.get(position)));
+                        break;
+                    case StaticBaseInfo.QQ_MUSIC_MV_TYPE:
+                        EventBus.getDefault().post(new QQMVEvent(null));
+                        break;
+                }
+
             }
         };
         geDanAdapter = new GeDanAdapter(getActivity(), geDanInfos, binding.mrvGedan) {
@@ -196,9 +205,9 @@ public class MyInternetFragment extends Fragment {
                                     EventBus.getDefault().post(new QQMusicFocuse10002Event(event.shouYeInfo.getFocusList().get(position).getUrl()));
                                     break;
                                 case StaticBaseInfo.QQ_MUSIC_FOCUSE_TYPE_3002:
-                                    Bundle bundle =new Bundle();
-                                    bundle.putString("path",event.shouYeInfo.getFocusList().get(position).getUrl());
-                                    ActivityUtils.startActivity(getActivity(), MyWebActivity.class,bundle);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("path", event.shouYeInfo.getFocusList().get(position).getUrl());
+                                    ActivityUtils.startActivity(getActivity(), MyWebActivity.class, bundle);
                                     break;
                                 default:
                                     Toast.makeText(getActivity(), "type:" + type + "\n" + event.shouYeInfo.getFocusList().get(position).getUrl(), Toast.LENGTH_SHORT).show();

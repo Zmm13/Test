@@ -54,4 +54,8 @@ public class ActivityManager {
             }
         }
     }
+
+    public static AppCompatActivity getTop(){
+        return list.get(0);
+    }
 }

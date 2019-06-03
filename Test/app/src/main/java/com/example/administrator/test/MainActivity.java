@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         //置空动画
 //        HomeMusicIconRotateTool.objectAnimator = null;
         if (MusicListTool.getInstance().getPlaySong() != null) {
-            SpTool.savePlaySong(this, MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.mediaPlayer.getCurrentPosition());
+//            SpTool.savePlaySong(this, MusicListTool.getInstance().getPlaySong(), MediaPlayerUtils.mediaPlayer.getCurrentPosition());
         }
         super.onDestroy();
     }

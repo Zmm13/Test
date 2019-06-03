@@ -18,14 +18,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.administrator.test.adapter.QqTop100Adapter;
+import com.example.administrator.test.adapter.QqTopMVAdapter;
 import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.databinding.FragmentInternetMusicBinding;
 import com.example.administrator.test.entity.GeDanEvent;
+import com.example.administrator.test.entity.MVInfo;
 import com.example.administrator.test.entity.QQMusic;
 import com.example.administrator.test.event.EventInternetMusicEnd;
 import com.example.administrator.test.event.IsLightChangeEvent;
 import com.example.administrator.test.event.MusicChangeEvent;
 import com.example.administrator.test.event.QQInternetMusicListChangeEvent;
+import com.example.administrator.test.event.QQMVEvent;
 import com.example.administrator.test.event.QQMusicFocuse10002Event;
 import com.example.administrator.test.event.QQMusicGetKeyEvent;
 import com.example.administrator.test.event.QQNewMusicEvent;
@@ -34,6 +37,7 @@ import com.example.administrator.test.presenter.InternetMusicPresenter;
 import com.example.administrator.test.presenter.MyInternetPresenter;
 import com.example.administrator.test.singleton.MediaPlayerUtils;
 import com.example.administrator.test.singleton.MusicListTool;
+import com.example.administrator.test.utils.ActivityUtils;
 import com.example.administrator.test.utils.KeybordsUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
@@ -61,8 +65,10 @@ public class InternetMusicFragment extends Fragment {
     private Context context;
 
     private List<QQMusic> list;
+    private List<MVInfo> mvInfos;
     private Song playSong = null;
     private QqTop100Adapter adapter;
+    private QqTopMVAdapter qqTopMVAdapter;
     private InternetMusicPresenter presenter;
     private FragmentInternetMusicBinding binding;
 
@@ -128,10 +134,19 @@ public class InternetMusicFragment extends Fragment {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         binding.rv.setLayoutManager(linearLayoutManager);
         list = new ArrayList<>();
+        mvInfos = new ArrayList<>();
         adapter = new QqTop100Adapter(getActivity(), list) {
             @Override
             protected void onItemClick(QQMusic song, int p) {
                 selectSong(song);
+            }
+        };
+        qqTopMVAdapter = new QqTopMVAdapter(getActivity(), mvInfos) {
+            @Override
+            protected void onItemClick(MVInfo song, int p) {
+                 Bundle bundle =new Bundle();
+                 bundle.putString("path",StaticBaseInfo.OTHER_BASE_URL.replace("https","http")+StaticBaseInfo.OTHER_TENCENT_MV_URL_ADD.replace(StaticBaseInfo.OTHER_TENCENT_MV_URL_REPLACE,mvInfos.get(p).getMvInfoDetail().getFvid()));
+                ActivityUtils.startActivity(context,VideoActivity.class,bundle);
             }
         };
         binding.rv.setAdapter(adapter);
@@ -163,7 +178,8 @@ public class InternetMusicFragment extends Fragment {
     public void onEvent(QQNewMusicEvent event) {
         list.clear();
         list.addAll(event.getList());
-        adapter.notifyDataSetChanged();
+        binding.rv.setAdapter(adapter);
+//        adapter.notifyDataSetChanged();
 //        Toast.makeText(getActivity(), event.getList().size() + "", Toast.LENGTH_SHORT).show();
     }
 
@@ -248,6 +264,16 @@ public class InternetMusicFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(QQMVEvent event) {
+        if(event.getList() == null || event.getList().size() == 0){
+            presenter.getMvTopList();
+        }else {
+            mvInfos.clear();
+            mvInfos .addAll(event.getList());
+            binding.rv.setAdapter(qqTopMVAdapter);
+        }
+    }
+ @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(IsLightChangeEvent event) {
         binding.setIsLight(StaticBaseInfo.isLight(getActivity()));
         if (adapter != null) {
