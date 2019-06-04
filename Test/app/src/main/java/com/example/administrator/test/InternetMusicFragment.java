@@ -146,6 +146,7 @@ public class InternetMusicFragment extends Fragment {
             protected void onItemClick(MVInfo song, int p) {
                  Bundle bundle =new Bundle();
                  bundle.putString("path",StaticBaseInfo.OTHER_BASE_URL.replace("https","http")+StaticBaseInfo.OTHER_TENCENT_MV_URL_ADD.replace(StaticBaseInfo.OTHER_TENCENT_MV_URL_REPLACE,mvInfos.get(p).getMvInfoDetail().getFvid()));
+                 bundle.putString("title",song.getMvInfoDetail().getFmv_title());
                 ActivityUtils.startActivity(context,VideoActivity.class,bundle);
             }
         };
