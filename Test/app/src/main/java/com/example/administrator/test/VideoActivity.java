@@ -72,8 +72,6 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     }
 
     private void initPlayer() {
-        SurfaceHolder surfaceHolder = binding.sfv.getHolder();
-        surfaceHolder.addCallback(this);
         ijkMediaPlayer = new IjkMediaPlayer();
         ijkMediaPlayer.setScreenOnWhilePlaying(true);
         ijkMediaPlayer.setKeepInBackground(false);
@@ -82,6 +80,8 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         } catch (IOException e) {
             e.printStackTrace();
         }
+        SurfaceHolder surfaceHolder = binding.sfv.getHolder();
+        surfaceHolder.addCallback(this);
     }
 
     @Override
@@ -115,6 +115,8 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 reflushUI(false);
                 binding.ivStart.setSelected(true);
                 binding.loadView.setVisibility(View.GONE);
+                iMediaPlayer.reset();
+                initPlayer();
                 return true;
             }
         });
@@ -127,7 +129,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         ijkMediaPlayer.setOnInfoListener(new IMediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
-                switch (i){
+                switch (i) {
                     case IjkMediaPlayer.MEDIA_INFO_BUFFERING_START:
                         binding.loadView.setVisibility(View.VISIBLE);
                         return true;
@@ -135,7 +137,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                         binding.loadView.setVisibility(View.GONE);
                         return true;
                 }
-                System.out.println("setOnInfoListener:"+i);
+                System.out.println("setOnInfoListener:" + i);
                 return false;
             }
         });
