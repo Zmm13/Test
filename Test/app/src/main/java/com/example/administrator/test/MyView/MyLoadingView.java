@@ -4,9 +4,14 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.example.administrator.test.R;
+import com.example.administrator.test.utils.Res;
 
 /**
  * 作者: zmm on 2017-08-24 10:21.
@@ -20,6 +25,7 @@ public class MyLoadingView extends View {
     private int circle3Yoffset;
     private int offsetMaxValue = 35;
     private long looperTime = 350;
+    private long refulshTime = 5;
     private int distance = 20;
     private long speed = 10;
     boolean circle1Go = false;
@@ -43,7 +49,7 @@ public class MyLoadingView extends View {
     private int circle3Way = 0;
     private int width;
     private int height;
-    private String content = "Loading";
+    private String content = "加载中";
 
     public MyLoadingView(Context context) {
         super(context);
@@ -73,7 +79,7 @@ public class MyLoadingView extends View {
         canvas.drawCircle(width / 2 + fontWidth / 2 + 2 * r, height / 2 + fontHeight / 4 - 2 * r + circle1Yoffset, r, mPaint);
         canvas.drawCircle(width / 2 + fontWidth / 2 + 4 * r + circleDistance, height / 2 + fontHeight / 4 - 2 * r + circle2Yoffset, r, mPaint);
         canvas.drawCircle(width / 2 + fontWidth / 2 + 6 * r + 2*circleDistance, height / 2 + fontHeight / 4 - 2 * r + circle3Yoffset, r, mPaint);
-        postDelayed(runnable,5);
+        postDelayed(runnable,refulshTime);
     }
 
     public void setOffsetMaxValue(int offsetMaxValue) {
@@ -106,8 +112,15 @@ public class MyLoadingView extends View {
 
     private void initPaint() {
         mPaint = new Paint();
-
+        textSize = (int) Res.getDimen(R.dimen.x12,getContext());
+        offsetMaxValue = textSize/2;
+        r = (int) Res.getDimen(R.dimen.x2,getContext());
+       TextPaint paint = new TextPaint();
+        distance = textSize/2;
+        circleDistance = (int) Res.getDimen(R.dimen.x6,getContext());
+        refulshTime = 5;
         mPaint.setTextSize(textSize);
+        mPaint.setTypeface(Typeface.DEFAULT_BOLD);
         mPaint.setColor(Color.parseColor(color));
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setAntiAlias(true);
@@ -151,7 +164,7 @@ public class MyLoadingView extends View {
                 } else if (circle3Yoffset == -offsetMaxValue) {
                     circle3Way = 1;
                 }
-                //判断第二个圆点启动
+                //判断第一个圆点启动
                 if (circle1Yoffset == 0 && circle2Yoffset == 0 && circle3Yoffset == 0) {
                     //一轮结束间隔时间
                     try {

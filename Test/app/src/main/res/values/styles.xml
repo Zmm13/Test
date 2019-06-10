@@ -29,4 +29,38 @@
         <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <style name="activityAnimation">
+        <item name="android:activityOpenEnterAnimation">@anim/animaition_activity_start</item>
+        <item name="android:activityCloseExitAnimation">@anim/animaition_activity_end</item>
+        <item name="android:activityOpenExitAnimation">@anim/animaition_activity_main_end</item>
+        <item name="android:activityCloseEnterAnimation">@anim/animaition_activity_main_start</item>
+        <item name="android:taskOpenEnterAnimation">@null</item>
+        <item name="android:taskOpenExitAnimation">@null</item>
+        <item name="android:taskCloseEnterAnimation">@null</item>
+        <item name="android:taskCloseExitAnimation">@null</item>
+        <item name="android:taskToBackEnterAnimation">@null</item>
+        <item name="android:taskToBackExitAnimation">@null</item>
+        <item name="android:taskToFrontEnterAnimation">@null</item>
+        <item name="android:taskToFrontExitAnimation">@null</item>
+    </style>
+    <style name="activityAnimationMain">
+        <item name="android:activityOpenEnterAnimation">@null</item>
+        <item name="android:activityCloseExitAnimation">@null</item>
+        <item name="android:activityOpenExitAnimation">@null</item>
+        <item name="android:activityCloseEnterAnimation">@null</item>
+        <item name="android:taskOpenEnterAnimation">@null</item>
+        <item name="android:taskOpenExitAnimation">@null</item>
+        <item name="android:taskCloseEnterAnimation">@null</item>
+        <item name="android:taskCloseExitAnimation">@null</item>
+        <item name="android:taskToBackEnterAnimation">@null</item>
+        <item name="android:taskToBackExitAnimation">@null</item>
+        <item name="android:taskToFrontEnterAnimation">@null</item>
+        <item name="android:taskToFrontExitAnimation">@null</item>
+    </style>
+    <style name="ActivityTheme" parent="NoTitleTheme">
+      <item name="android:windowAnimationStyle">@style/activityAnimation</item>
+    </style>
+    <style name="ActivityThemeMain" parent="NoTitleTheme">
+       <item name="android:windowAnimationStyle">@style/activityAnimationMain</item>
+    </style>
 </resources>

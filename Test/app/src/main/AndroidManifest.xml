@@ -20,7 +20,8 @@
         <activity
             android:name=".Main2Activity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityThemeMain">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,13 +53,19 @@
             android:authorities="com.example.administrator.test.provider.myContentProvider"
             android:exported="true" />
 
-        <activity android:name=".MusicPlayShowActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".MyWebActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".VideoActivity"
-            android:launchMode="singleInstance"
-            android:configChanges="screenSize|keyboardHidden|orientation"/>
+        <activity
+            android:name=".MusicPlayShowActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityTheme" />
+        <activity
+            android:name=".MyWebActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityTheme" />
+        <activity
+            android:name=".VideoActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation"
+            android:launchMode="singleTask"
+            android:theme="@style/ActivityTheme" />
     </application>
 
 </manifest>

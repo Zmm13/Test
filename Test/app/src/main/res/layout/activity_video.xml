@@ -25,6 +25,20 @@
             name="title"
             type="String" />
 
+        <variable
+            name="levelState"
+            type="Integer" />
+
+        <variable
+            name="levelProgress"
+            type="String" />
+
+        <variable
+            name="showControl"
+            type="Boolean"/>
+
+        <import type="android.view.View"/>
+
     </data>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -36,13 +50,14 @@
         android:background="@{isLight ? StaticBaseInfo.baseColor_light : StaticBaseInfo.baseColor_dark}"
         tools:context=".VideoActivity">
 
+
         <SurfaceView
             android:id="@+id/sfv"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x200"
             android:layout_centerInParent="true" />
 
-        <LinearLayout
+        <com.example.administrator.test.MyView.MyLinearLayout
             android:id="@+id/ll_control"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -52,7 +67,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/x30"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="@{showControl ? View.VISIBLE : View.INVISIBLE}">
 
                 <ImageView
                     android:id="@+id/iv_back"
@@ -71,16 +87,31 @@
                     android:textSize="@dimen/x10" />
             </LinearLayout>
 
-            <View
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <com.example.administrator.test.MyView.MyUpDownView
+                    android:id="@+id/my_up_down_left"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <com.example.administrator.test.MyView.MyUpDownView
+                    android:id="@+id/my_up_down_right"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/x30"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="@{showControl ? View.VISIBLE : View.INVISIBLE}">
 
                 <ImageView
                     android:id="@+id/iv_start"
@@ -134,15 +165,39 @@
                     android:src="@drawable/selector_screen_icon" />
             </LinearLayout>
 
+        </com.example.administrator.test.MyView.MyLinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="@dimen/x12"
+                android:layout_height="@dimen/x12"
+                android:scaleType="fitXY"
+                android:src="@{levelState == StaticBaseInfo.TAG_ISLIGHT  ? @drawable/light_level: @drawable/voice_level}" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x2"
+                android:includeFontPadding="false"
+                android:text="@{levelProgress}"
+                android:textColor="@color/white"
+                android:textSize="@dimen/x10" />
         </LinearLayout>
 
         <com.example.administrator.test.MyView.MyLoadingView
             android:id="@+id/load_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="@dimen/x88"
+            android:layout_height="@dimen/x15"
             android:layout_centerInParent="true"
-            android:visibility="gone"
             android:background="#05ffffff"
-            />
+            android:visibility="gone" />
     </RelativeLayout>
 </layout>

@@ -131,6 +131,9 @@ public class StaticBaseInfo {
     public static  final String OTHER_TENCENT_MV_URL_REPLACE = "&ID&";//?id=1135983683&format=1
 
 
+    //视频左右上下滑标识
+    public static final int TAG_ISVOICE = 1;
+    public static final int TAG_ISLIGHT = 0;
 
 }
 

@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -13,11 +14,19 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.example.administrator.test.MyView.MyLinearLayout;
+import com.example.administrator.test.MyView.MyUpDownView;
 import com.example.administrator.test.base.BaseActivity;
 import com.example.administrator.test.databinding.ActivityVideoBinding;
 import com.example.administrator.test.daoJavaBean.Song;
+import com.example.administrator.test.minterfcae.UpDownInterface;
+import com.example.administrator.test.utils.ActivityBrightnessManager;
+import com.example.administrator.test.utils.AudioUtil;
 import com.example.administrator.test.utils.MusicTimeTool;
 import com.example.administrator.test.utils.Res;
+import com.example.administrator.test.utils.ScreenLightTool;
+import com.example.administrator.test.utils.ScreenUtils;
+import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
 
 import java.io.IOException;
@@ -28,6 +37,9 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkTimedText;
 
+import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
+
 public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements SurfaceHolder.Callback {
 
     private IjkMediaPlayer ijkMediaPlayer;
@@ -36,8 +48,12 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     private boolean isTouchSeekBar = false;
     private Timer timer;
     private TimerTask task;
+    private TimerTask task2;
     private SurfaceHolder surfaceHolder;
     private boolean exitIsPlay = false;
+    private int levelDistance = 100;
+    private int levelDistance2 = 100;
+    private long touchTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +81,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         path = getIntent().getStringExtra("path");
         title = getIntent().getStringExtra("title");
         binding.setTitle(TextUtil.isEmpty(title) ? "无标题" : title);
+        binding.setShowControl(true);
 //        path = "http://v1.itooi.cn/tencent/mvUrl?id=f0030zht1hf&quality=1080";
         if (TextUtil.isEmpty(path))
             return;
@@ -211,19 +228,88 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         binding.llControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                binding.llControl.setVisibility(View.INVISIBLE);
-            }
-        });
-        binding.sfv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.llControl.setVisibility(View.VISIBLE);
+//                binding.llControl.setVisibility(View.INVISIBLE);
+//                binding.setShowControl(!binding.getShowControl());
             }
         });
         binding.loadView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+            }
+        });
+
+        binding.myUpDownLeft.setUpDateInterface(new MyUpDownView.UpDateInterface() {
+            @Override
+            public void update(MyUpDownView myUpDownView, float distance) {
+                binding.llLevel.setVisibility(View.VISIBLE);
+                int value = (int) (myUpDownView.getCurrent() + distance / levelDistance2);
+                int max = myUpDownView.getMax();
+                int level = value >= max ? max : (value <= 0 ? 0 : value);
+                ActivityBrightnessManager.setActivityBrightness((float) level / 255f, VideoActivity.this);
+                binding.setLevelProgress((level * 100) / max + "%");
+            }
+
+            @Override
+            public void down(MyUpDownView myUpDownView) {
+                myUpDownView.setMax(255);
+                levelDistance2 = (int) ((ScreenUtils.getScreenHeight(context) - Res.getDimen(R.dimen.x70, context)) / myUpDownView.getMax());
+                myUpDownView.setCurrent((int) (ActivityBrightnessManager.getActivityBrightness(VideoActivity.this) * 255f));
+                binding.setLevelState(StaticBaseInfo.TAG_ISLIGHT);
+//                binding.llLevel.setVisibility(View.VISIBLE);
+//                binding.setLevelProgress((myUpDownView.getCurrent()*100)/myUpDownView.getMax()+"%");
+//                if(ScreenLightTool.getScreenMode(context) == SCREEN_BRIGHTNESS_MODE_AUTOMATIC){
+//                    ScreenLightTool.setScreenMode(context,SCREEN_BRIGHTNESS_MODE_MANUAL);
+//                }
+            }
+
+            @Override
+            public void up(MyUpDownView myUpDownView) {
+                binding.llLevel.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void click(MyUpDownView myUpDownView) {
+                binding.setShowControl(!binding.getShowControl());
+            }
+        });
+        binding.myUpDownRight.setUpDateInterface(new MyUpDownView.UpDateInterface() {
+            @Override
+            public void update(MyUpDownView myUpDownView, float distance) {
+                binding.llLevel.setVisibility(View.VISIBLE);
+                int value = (int) (myUpDownView.getCurrent() + distance / levelDistance);
+                int max = myUpDownView.getMax();
+                int level = value >= max ? max : (value <= 0 ? 0 : value);
+                AudioUtil.getInstance(context).setMediaVolume(level);
+                binding.setLevelProgress((level * 100) / max + "%");
+            }
+
+            @Override
+            public void down(MyUpDownView myUpDownView) {
+                myUpDownView.setMax(AudioUtil.getInstance(context).getMediaMaxVolume());
+                levelDistance = (int) ((ScreenUtils.getScreenHeight(context) - Res.getDimen(R.dimen.x70, context)) / myUpDownView.getMax());
+                myUpDownView.setCurrent(AudioUtil.getInstance(context).getMediaVolume());
+                binding.setLevelState(StaticBaseInfo.TAG_ISVOICE);
+//                binding.llLevel.setVisibility(View.VISIBLE);
+//                binding.setLevelProgress((myUpDownView.getCurrent()*100)/myUpDownView.getMax()+"%");
+            }
+
+            @Override
+            public void up(MyUpDownView myUpDownView) {
+                binding.llLevel.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void click(MyUpDownView myUpDownView) {
+                binding.setShowControl(!binding.getShowControl());
+            }
+        });
+        binding.llControl.setTouchInterface(new MyLinearLayout.TouchInterface() {
+            @Override
+            public void doTouch() {
+//                touchTime = System.currentTimeMillis();
+                closeControlView();
+//                Toast.makeText(VideoActivity.this, "touchTime:" + touchTime, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -276,29 +362,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
             timer.purge();
             timer = null;
         }
-    }
-
-    public class SeekThread implements Runnable {
-        @Override
-        public void run() {
-            while (true) {
-                if (ijkMediaPlayer != null && ijkMediaPlayer.isPlaying()) {
-                    if (!isTouchSeekBar) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                binding.seekBar.setProgress((int) ijkMediaPlayer.getCurrentPosition());
-                            }
-                        });
-                    }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+//        overridePendingTransition(R.anim.animaition_activity_end,0);
     }
 
     @Override
@@ -349,5 +413,37 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     @Override
     public void onBackPressed() {
         binding.ivBack.performClick();
+    }
+
+    private void closeControlView(){
+//        if (!binding.getShowControl()) {
+//            if (task2 != null) {
+//                task2.cancel();
+//                task2 = null;
+//            }
+//            return;
+//        }
+        if (timer == null) {
+            timer = new Timer();
+        }
+        if (task2 != null) {
+            task2.cancel();
+            task2 = null;
+        }
+        task2 = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        if(System.currentTimeMillis()-touchTime >= 2000){
+                            binding.setShowControl(false);
+//                        }
+                    }
+                });
+
+            }
+        };
+        timer.schedule(task2,3000);
     }
 }

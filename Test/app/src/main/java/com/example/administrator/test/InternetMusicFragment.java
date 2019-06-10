@@ -148,6 +148,7 @@ public class InternetMusicFragment extends Fragment {
                  bundle.putString("path",StaticBaseInfo.OTHER_BASE_URL.replace("https","http")+StaticBaseInfo.OTHER_TENCENT_MV_URL_ADD.replace(StaticBaseInfo.OTHER_TENCENT_MV_URL_REPLACE,mvInfos.get(p).getMvInfoDetail().getFvid()));
                  bundle.putString("title",song.getMvInfoDetail().getFmv_title());
                 ActivityUtils.startActivity(context,VideoActivity.class,bundle);
+//                getActivity().overridePendingTransition(R.anim.animaition_activity_start,0);
             }
         };
         binding.rv.setAdapter(adapter);
@@ -279,6 +280,9 @@ public class InternetMusicFragment extends Fragment {
         binding.setIsLight(StaticBaseInfo.isLight(getActivity()));
         if (adapter != null) {
             adapter.notifyDataSetChanged();
+        }
+        if(qqTopMVAdapter!=null){
+            qqTopMVAdapter.notifyDataSetChanged();
         }
     }
 
