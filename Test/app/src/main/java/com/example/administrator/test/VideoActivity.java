@@ -5,40 +5,34 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.example.administrator.test.MyView.MyLinearLayout;
+import com.example.administrator.test.MyView.VideoControlView;
 import com.example.administrator.test.MyView.MyUpDownView;
 import com.example.administrator.test.base.BaseActivity;
 import com.example.administrator.test.databinding.ActivityVideoBinding;
 import com.example.administrator.test.daoJavaBean.Song;
-import com.example.administrator.test.minterfcae.UpDownInterface;
 import com.example.administrator.test.utils.ActivityBrightnessManager;
 import com.example.administrator.test.utils.AudioUtil;
 import com.example.administrator.test.utils.MusicTimeTool;
 import com.example.administrator.test.utils.Res;
-import com.example.administrator.test.utils.ScreenLightTool;
 import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
 import com.example.administrator.test.utils.TextUtil;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
-import tv.danmaku.ijk.media.player.IjkTimedText;
-
-import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
-import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
 
 public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements SurfaceHolder.Callback {
 
@@ -49,11 +43,9 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     private Timer timer;
     private TimerTask task;
     private TimerTask task2;
-    private SurfaceHolder surfaceHolder;
     private boolean exitIsPlay = false;
     private int levelDistance = 100;
     private int levelDistance2 = 100;
-    private long touchTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,15 +71,21 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     @Override
     protected void initData() {
         path = getIntent().getStringExtra("path");
+        if (TextUtil.isEmpty(path))
+            finish();
+        //设置标题
         title = getIntent().getStringExtra("title");
         binding.setTitle(TextUtil.isEmpty(title) ? "无标题" : title);
+        //设置是否显示控制器
         binding.setShowControl(true);
-//        path = "http://v1.itooi.cn/tencent/mvUrl?id=f0030zht1hf&quality=1080";
-        if (TextUtil.isEmpty(path))
-            return;
+        //初始化播放器
         initPlayer();
+//        Calendar.getInstance().get(Calendar.YEAR);
     }
 
+    /**
+     * 初始化播放器
+     */
     private void initPlayer() {
         ijkMediaPlayer = new IjkMediaPlayer();
         ijkMediaPlayer.setScreenOnWhilePlaying(true);
@@ -97,22 +95,15 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         } catch (IOException e) {
             e.printStackTrace();
         }
-        SurfaceHolder surfaceHolder = binding.sfv.getHolder();
-        surfaceHolder.addCallback(this);
-    }
-
-    @Override
-    protected void initListener() {
-        binding.ivBack.setOnClickListener(new View.OnClickListener() {
+        //监听视频大小改变
+        ijkMediaPlayer.setOnVideoSizeChangedListener(new IMediaPlayer.OnVideoSizeChangedListener() {
             @Override
-            public void onClick(View view) {
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                } else {
-                    finish();
-                }
+            public void onVideoSizeChanged(IMediaPlayer iMediaPlayer, int i, int i1, int i2, int i3) {
+                binding.seekBar.setMax((int) iMediaPlayer.getDuration());
+                binding.setDuration(MusicTimeTool.getMusicTime(iMediaPlayer.getDuration()));
             }
         });
+        //准备完成后监听
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
@@ -125,6 +116,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 }
             }
         });
+        //异常监听
         ijkMediaPlayer.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
@@ -137,12 +129,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 return true;
             }
         });
-        ijkMediaPlayer.setOnTimedTextListener(new IMediaPlayer.OnTimedTextListener() {
-            @Override
-            public void onTimedText(IMediaPlayer iMediaPlayer, IjkTimedText ijkTimedText) {
-                System.out.println("setOnTimedTextListener");
-            }
-        });
+        //消息监听
         ijkMediaPlayer.setOnInfoListener(new IMediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
@@ -158,12 +145,14 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 return false;
             }
         });
+        //缓存监听
         ijkMediaPlayer.setOnBufferingUpdateListener(new IMediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
                 binding.seekBar.setSecondaryProgress(binding.seekBar.getMax() / 100 * i);
             }
         });
+        //完成监听
         ijkMediaPlayer.setOnCompletionListener(new IMediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(IMediaPlayer iMediaPlayer) {
@@ -172,13 +161,25 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 binding.ivStart.setSelected(true);
             }
         });
-        ijkMediaPlayer.setOnVideoSizeChangedListener(new IMediaPlayer.OnVideoSizeChangedListener() {
+        //初始化surface
+        SurfaceHolder surfaceHolder = binding.sfv.getHolder();
+        surfaceHolder.addCallback(this);
+    }
+
+    @Override
+    protected void initListener() {
+        //返回按钮点击事件
+        binding.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onVideoSizeChanged(IMediaPlayer iMediaPlayer, int i, int i1, int i2, int i3) {
-                binding.seekBar.setMax((int) iMediaPlayer.getDuration());
-                binding.setDuration(MusicTimeTool.getMusicTime(iMediaPlayer.getDuration()));
+            public void onClick(View view) {
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                } else {
+                    finish();
+                }
             }
         });
+        //滑动指示器监听
         binding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -196,6 +197,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 ijkMediaPlayer.seekTo(binding.seekBar.getProgress());
             }
         });
+        //播放按钮点击事件
         binding.ivStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -214,6 +216,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 }
             }
         });
+        //全屏按钮点击事件
         binding.ivFullOrHalfScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -225,20 +228,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 }
             }
         });
-        binding.llControl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                binding.llControl.setVisibility(View.INVISIBLE);
-//                binding.setShowControl(!binding.getShowControl());
-            }
-        });
-        binding.loadView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
+        //左边上下滑监听
         binding.myUpDownLeft.setUpDateInterface(new MyUpDownView.UpDateInterface() {
             @Override
             public void update(MyUpDownView myUpDownView, float distance) {
@@ -256,11 +246,6 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 levelDistance2 = (int) ((ScreenUtils.getScreenHeight(context) - Res.getDimen(R.dimen.x70, context)) / myUpDownView.getMax());
                 myUpDownView.setCurrent((int) (ActivityBrightnessManager.getActivityBrightness(VideoActivity.this) * 255f));
                 binding.setLevelState(StaticBaseInfo.TAG_ISLIGHT);
-//                binding.llLevel.setVisibility(View.VISIBLE);
-//                binding.setLevelProgress((myUpDownView.getCurrent()*100)/myUpDownView.getMax()+"%");
-//                if(ScreenLightTool.getScreenMode(context) == SCREEN_BRIGHTNESS_MODE_AUTOMATIC){
-//                    ScreenLightTool.setScreenMode(context,SCREEN_BRIGHTNESS_MODE_MANUAL);
-//                }
             }
 
             @Override
@@ -273,6 +258,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 binding.setShowControl(!binding.getShowControl());
             }
         });
+        //右边上下滑监听
         binding.myUpDownRight.setUpDateInterface(new MyUpDownView.UpDateInterface() {
             @Override
             public void update(MyUpDownView myUpDownView, float distance) {
@@ -290,8 +276,6 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 levelDistance = (int) ((ScreenUtils.getScreenHeight(context) - Res.getDimen(R.dimen.x70, context)) / myUpDownView.getMax());
                 myUpDownView.setCurrent(AudioUtil.getInstance(context).getMediaVolume());
                 binding.setLevelState(StaticBaseInfo.TAG_ISVOICE);
-//                binding.llLevel.setVisibility(View.VISIBLE);
-//                binding.setLevelProgress((myUpDownView.getCurrent()*100)/myUpDownView.getMax()+"%");
             }
 
             @Override
@@ -304,16 +288,19 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 binding.setShowControl(!binding.getShowControl());
             }
         });
-        binding.llControl.setTouchInterface(new MyLinearLayout.TouchInterface() {
+        //控制器触摸监听设置定时任务隐藏控制器
+        binding.llControl.setTouchInterface(new VideoControlView.TouchInterface() {
             @Override
             public void doTouch() {
-//                touchTime = System.currentTimeMillis();
                 closeControlView();
-//                Toast.makeText(VideoActivity.this, "touchTime:" + touchTime, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    /**
+     * 横竖屏改变监听
+     * @param newConfig
+     */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -356,6 +343,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         if (ijkMediaPlayer.isPlaying()) {
             ijkMediaPlayer.stop();
         }
+
         ijkMediaPlayer.release();
         if (timer != null) {
             timer.cancel();
@@ -383,6 +371,11 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         }
     }
 
+    /**
+     * 刷新ui的线程
+     *
+     * @param b
+     */
     private void reflushUI(boolean b) {
         if (b) {
             if (timer == null) {
@@ -410,19 +403,18 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         }
     }
 
+    /**
+     * 返回键监听
+     */
     @Override
     public void onBackPressed() {
         binding.ivBack.performClick();
     }
 
-    private void closeControlView(){
-//        if (!binding.getShowControl()) {
-//            if (task2 != null) {
-//                task2.cancel();
-//                task2 = null;
-//            }
-//            return;
-//        }
+    /**
+     * 关闭控制view
+     */
+    private void closeControlView() {
         if (timer == null) {
             timer = new Timer();
         }
@@ -436,14 +428,12 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        if(System.currentTimeMillis()-touchTime >= 2000){
-                            binding.setShowControl(false);
-//                        }
+                        binding.setShowControl(false);
                     }
                 });
 
             }
         };
-        timer.schedule(task2,3000);
+        timer.schedule(task2, 3000);
     }
 }
