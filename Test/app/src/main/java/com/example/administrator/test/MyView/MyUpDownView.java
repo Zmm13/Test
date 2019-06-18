@@ -22,6 +22,7 @@ public class MyUpDownView extends View {
     private int max;
     private int current;
     private long downTime;
+    private long clickTime = 500;
 
     public int getMax() {
         return max;
@@ -85,13 +86,13 @@ public class MyUpDownView extends View {
             case MotionEvent.ACTION_CANCEL:
                 if (upDateInterface != null) {
                     upDateInterface.up(this);
-                    if (System.currentTimeMillis() - downTime < 100) {
+                    if (System.currentTimeMillis() - downTime < clickTime) {
                         upDateInterface.click(this);
                     }
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
-                if (upDateInterface != null&&System.currentTimeMillis() - downTime > 100) {
+                if (upDateInterface != null&&System.currentTimeMillis() - downTime > clickTime) {
                     upDateInterface.update(this, startY - event.getY());
                 }
                 return true;

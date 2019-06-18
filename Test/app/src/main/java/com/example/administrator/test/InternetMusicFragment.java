@@ -161,8 +161,15 @@ public class InternetMusicFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                adapter.setFirstPosition(linearLayoutManager.findFirstVisibleItemPosition());
-                adapter.setLastPosition(linearLayoutManager.findLastVisibleItemPosition());
+                if(adapter!=null){
+                    adapter.setFirstPosition(linearLayoutManager.findFirstVisibleItemPosition());
+                    adapter.setLastPosition(linearLayoutManager.findLastVisibleItemPosition());
+                }
+                if(qqTopMVAdapter!=null){
+                    qqTopMVAdapter.setFirstPosition(linearLayoutManager.findFirstVisibleItemPosition());
+                    qqTopMVAdapter.setLastPosition(linearLayoutManager.findLastVisibleItemPosition());
+                }
+
             }
         });
 

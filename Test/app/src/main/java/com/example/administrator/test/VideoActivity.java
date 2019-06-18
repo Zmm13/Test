@@ -1,10 +1,13 @@
 package com.example.administrator.test;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
@@ -20,6 +23,7 @@ import com.example.administrator.test.daoJavaBean.Song;
 import com.example.administrator.test.utils.ActivityBrightnessManager;
 import com.example.administrator.test.utils.AudioUtil;
 import com.example.administrator.test.utils.MusicTimeTool;
+import com.example.administrator.test.utils.NetUtils;
 import com.example.administrator.test.utils.Res;
 import com.example.administrator.test.utils.ScreenUtils;
 import com.example.administrator.test.utils.StaticBaseInfo;
@@ -34,6 +38,8 @@ import java.util.TimerTask;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
+import static tv.danmaku.ijk.media.player.IMediaPlayer.MEDIA_INFO_BUFFERING_START;
+
 public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements SurfaceHolder.Callback {
 
     private IjkMediaPlayer ijkMediaPlayer;
@@ -46,6 +52,10 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     private boolean exitIsPlay = false;
     private int levelDistance = 100;
     private int levelDistance2 = 100;
+    private boolean isSurfaceCreated = false;
+    private boolean isPrepared = false;
+    private boolean isPrepareing = false;
+    private long errorPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +86,13 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         //设置标题
         title = getIntent().getStringExtra("title");
         binding.setTitle(TextUtil.isEmpty(title) ? "无标题" : title);
+        //设置默认播放按钮状态
+        binding.ivStart.setSelected(true);
         //设置是否显示控制器
         binding.setShowControl(true);
+        closeControlView();
         //初始化播放器
         initPlayer();
-//        Calendar.getInstance().get(Calendar.YEAR);
     }
 
     /**
@@ -90,6 +102,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         ijkMediaPlayer = new IjkMediaPlayer();
         ijkMediaPlayer.setScreenOnWhilePlaying(true);
         ijkMediaPlayer.setKeepInBackground(false);
+        ijkMediaPlayer.setLooping(true);
         try {
             ijkMediaPlayer.setDataSource(context, Uri.parse(path));
         } catch (IOException e) {
@@ -107,25 +120,22 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
-                if (ijkMediaPlayer.isPlayable()) {
-                    ijkMediaPlayer.start();
-                    reflushUI(true);
-                    binding.loadView.setVisibility(View.GONE);
-                    binding.ivStart.setSelected(false);
-//                 new Thread(new SeekThread()).start();
+                isPrepareing = false;
+                binding.loadView.setVisibility(View.GONE);
+                isPrepared = true;
+                if(errorPosition>0){
+                    ijkMediaPlayer.seekTo(errorPosition);
                 }
+                ijkMediaPlayer.start();
+                reflushUI(true);
             }
         });
         //异常监听
         ijkMediaPlayer.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
-                Toast.makeText(VideoActivity.this, "播放失败！", Toast.LENGTH_SHORT).show();
-                reflushUI(false);
-                binding.ivStart.setSelected(true);
-                binding.loadView.setVisibility(View.GONE);
-                iMediaPlayer.reset();
-                initPlayer();
+                Toast.makeText(VideoActivity.this, "播放失败!", Toast.LENGTH_SHORT).show();
+                stop();
                 return true;
             }
         });
@@ -134,17 +144,25 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
             @Override
             public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
                 switch (i) {
-                    case IjkMediaPlayer.MEDIA_INFO_BUFFERING_START:
-                        binding.loadView.setVisibility(View.VISIBLE);
+                    case MEDIA_INFO_BUFFERING_START:
+                        if(NetUtils.isConnected(context)){
+                            binding.loadView.setVisibility(View.VISIBLE);
+                        }else {
+                            stop();
+                        }
                         return true;
                     case IjkMediaPlayer.MEDIA_INFO_BUFFERING_END:
                         binding.loadView.setVisibility(View.GONE);
                         return true;
+//                    case IjkMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
+////                        reflushUI(true);
+//                        break;
                 }
                 System.out.println("setOnInfoListener:" + i);
                 return false;
             }
         });
+
         //缓存监听
         ijkMediaPlayer.setOnBufferingUpdateListener(new IMediaPlayer.OnBufferingUpdateListener() {
             @Override
@@ -157,12 +175,10 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
             @Override
             public void onCompletion(IMediaPlayer iMediaPlayer) {
                 Toast.makeText(VideoActivity.this, "播放完毕!", Toast.LENGTH_SHORT).show();
-                reflushUI(false);
-                binding.ivStart.setSelected(true);
             }
         });
-        //初始化surface
         SurfaceHolder surfaceHolder = binding.sfv.getHolder();
+        //初始化surface
         surfaceHolder.addCallback(this);
     }
 
@@ -201,15 +217,20 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
         binding.ivStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (isPrepareing) {
+                    Toast.makeText(VideoActivity.this, "请稍等！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (ijkMediaPlayer != null) {
+                    if (!isPrepared) {
+                        prepareWithCheck();
+                        return;
+                    }
                     if (ijkMediaPlayer.isPlaying()) {
                         ijkMediaPlayer.pause();
-                        binding.ivStart.setSelected(true);
-                        reflushUI(false);
                         System.out.println("pause");
-                    } else if (ijkMediaPlayer.isPlayable()) {
+                    } else if (isSurfaceCreated) {
                         ijkMediaPlayer.start();
-                        binding.ivStart.setSelected(false);
                         reflushUI(true);
                         System.out.println("play");
                     }
@@ -299,6 +320,7 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
 
     /**
      * 横竖屏改变监听
+     *
      * @param newConfig
      */
     @Override
@@ -317,9 +339,13 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        System.out.println("surfaceCreated:000000000000");
         ijkMediaPlayer.setDisplay(surfaceHolder);
-        binding.loadView.setVisibility(View.VISIBLE);
-        ijkMediaPlayer.prepareAsync();
+        if(isSurfaceCreated){
+            return;
+        }
+        isSurfaceCreated = true;
+        prepareWithCheck();
     }
 
     @Override
@@ -350,7 +376,6 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
             timer.purge();
             timer = null;
         }
-//        overridePendingTransition(R.anim.animaition_activity_end,0);
     }
 
     @Override
@@ -365,6 +390,8 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
     @Override
     protected void onStart() {
         super.onStart();
+        binding.setShowControl(true);
+        closeControlView();
         if (exitIsPlay) {
             binding.ivStart.performClick();
             exitIsPlay = false;
@@ -384,14 +411,21 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
             task = new TimerTask() {
                 @Override
                 public void run() {
-                    if (!isTouchSeekBar) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                    System.out.println("update00000000000000000000000:");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean b = ijkMediaPlayer.isPlaying();
+                            binding.ivStart.setSelected(!b);
+                            if (!isTouchSeekBar) {
                                 binding.seekBar.setProgress((int) ijkMediaPlayer.getCurrentPosition());
                             }
-                        });
-                    }
+                            if (!b) {
+                                reflushUI(false);
+                            }
+                            System.out.println("update:"+b+"      ");
+                        }
+                    });
                 }
             };
             timer.schedule(task, 100, 100);
@@ -435,5 +469,52 @@ public class VideoActivity extends BaseActivity<ActivityVideoBinding> implements
             }
         };
         timer.schedule(task2, 3000);
+    }
+
+    /**
+     * 准备播放
+     */
+    private void prepareWithCheck() {
+        if (ijkMediaPlayer == null) {
+            return;
+        }
+        if (NetUtils.isConnected(context)) {
+            if(NetUtils.isWifi(context)) {
+                prepare();
+            }else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context).setIcon(R.drawable.jingao).setTitle("提示")
+                        .setMessage("wifi不可用，是否使用数据流量?").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                prepare();
+                            }
+                        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                builder.setCancelable(false);
+                builder.create().show();
+            }
+        } else {
+          Toast.makeText(VideoActivity.this,"网络不可用，请求检查网络！",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void prepare() {
+        isPrepared = false;
+        ijkMediaPlayer.prepareAsync();
+        isPrepareing = true;
+        binding.loadView.setVisibility(View.VISIBLE);
+    }
+
+    private void stop(){
+        binding.loadView.setVisibility(View.GONE);
+        isPrepared = false;
+        isPrepareing = false;
+        errorPosition = binding.seekBar.getProgress();
+        System.out.println("errorPosition:"+errorPosition);
+        ijkMediaPlayer.stop();
     }
 }

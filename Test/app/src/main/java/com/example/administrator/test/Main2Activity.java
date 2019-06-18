@@ -79,8 +79,10 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     private boolean isTouchSeekBar = false;//主页seekbar是否触摸
     private Intent intent;//播放音乐服务的intent对象
     private HomeMusicIconRotateTool homeMusicIconRotateTool;
-//    private String[] titles = new String[]{"发现","音乐","本地","设置"};
+    //    private String[] titles = new String[]{"发现","音乐","本地","设置"};
     private boolean firstInitService = false;
+
+    private int max;
 
 
     @Override
@@ -167,6 +169,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 isTouchSeekBar = true;
+                max = seekBar.getMax();
             }
 
             @Override
@@ -224,7 +227,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         binding.ivSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(binding.vp.getCurrentItem() != 1){
+                if (binding.vp.getCurrentItem() != 1) {
                     binding.vp.setCurrentItem(1);
                 }
                 EventBus.getDefault().post(new SearchInternetMusicEvent());
@@ -259,9 +262,9 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
                 musicPlayBinder.addUpdateListener(Main2Activity.this);
 //                musicPlayBinder.play(context,Main2Activity.this);
             }
-            if(firstInitService){
+            if (firstInitService) {
                 musicPlayBinder.removeUpdateListener(Main2Activity.this);
-                musicPlayBinder.play(context,Main2Activity.this);
+                musicPlayBinder.play(context, Main2Activity.this);
                 firstInitService = false;
             }
         }
@@ -374,7 +377,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
     public void onEvent(BufferUpdateEvent event) {
         int i = binding.seekBar.getMax() * event.getPercent() / 100;
         System.out.println("SecondaryProgress:" + i);
-        binding.seekBar.setSecondaryProgress(i);
+        binding.seekBar.setSecondaryProgress(i >= binding.seekBar.getMax() * 95 / 100 ? binding.seekBar.getMax() : i);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -408,7 +411,7 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              setProgress(duration,progress);
+                setProgress(duration, progress);
             }
         });
     }
@@ -434,17 +437,17 @@ public class Main2Activity extends BaseActivity<ActivityMainBinding> {
             return;
         setPic(song);
         binding.ivPlay.setSelected(isPlay);
-        binding.setShowName(song.getName()+"/"+song.getSinger());
+        binding.setShowName(song.getName() + "/" + song.getSinger());
         binding.ivPlay.setSelected(isPlay);
         homeMusicIconRotateTool.rotateView(isPlay, binding.civ);
     }
 
     private void setProgress(int duration, int progress) {
-        if (duration>=0&&binding.seekBar.getMax() != duration) {
+        if (duration >= 0 && binding.seekBar.getMax() != duration) {
             binding.seekBar.setMax(duration);
             binding.setDuration(MusicTimeTool.getMusicTime(duration));
         }
-        if (duration>=0&&!isTouchSeekBar) {
+        if (duration >= 0 && !isTouchSeekBar) {
             binding.seekBar.setProgress(progress);
             binding.setProgressTime(MusicTimeTool.getMusicTime(progress));
 //            System.out.println("update");

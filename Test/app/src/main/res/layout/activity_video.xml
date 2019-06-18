@@ -159,7 +159,7 @@
                     android:id="@+id/iv_start"
                     android:layout_width="@dimen/x30"
                     android:layout_height="@dimen/x30"
-                    android:padding="@dimen/x5"
+                    android:padding="@dimen/x7"
                     android:scaleType="fitXY"
                     android:src="@drawable/selector_video_start" />
 
@@ -202,7 +202,7 @@
                     android:id="@+id/iv_full_or_half_screen"
                     android:layout_width="@dimen/x30"
                     android:layout_height="@dimen/x30"
-                    android:padding="@dimen/x5"
+                    android:padding="@dimen/x7"
                     android:scaleType="fitXY"
                     android:src="@drawable/selector_screen_icon" />
             </LinearLayout>
